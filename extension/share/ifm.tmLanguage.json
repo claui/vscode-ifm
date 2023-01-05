@@ -3,8 +3,8 @@
   "scopeName": "source.ifm",
   "uuid": "58618e38-ae1a-4ad2-8bb9-415f2118fd66",
   "injections": {
-    "L:meta.section.command.require.body": {
-      "comment": "Special case for `require`, which cannot have a string literal as a body. So we’re prepending these patterns to the `#string` include, giving them higher priority.",
+    "L:meta.section.command-tail.require.ifm": {
+      "comment": "Special case for `require`, which cannot have a string literal as a body. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
       "patterns": [
         {
           "match": "[0-9](?:[0-9]*\\.[0-9]+)*",
@@ -12,8 +12,8 @@
           "name": "constant.numeric.decimal.ifm"
         },
         {
-          "match": ".*",
-          "comment": "Short-circuit so we can never reach the `#string` include",
+          "match": ".*(?=;)",
+          "comment": "Short-circuit so we can never reach the `#command-tail` include",
           "name": "invalid.illegal.version.number"
         }
       ]
@@ -34,22 +34,13 @@
       "patterns": []
     },
     "command": {
-      "comment": "Trying to enforce the command syntax as good as we can",
-      "begin": "(\\w+)\\s+(\"(?:[^\"]|\\\\\")+(?<!\\\\)\"|[^;\"][^;]*)",
+      "begin": "(\\w+)\\s+",
       "beginCaptures": {
         "1": {
           "name": "meta.section.tag.command.type",
           "patterns": [
             {
               "include": "#command-type"
-            }
-          ]
-        },
-        "2": {
-          "name": "meta.section.command.$1.body",
-          "patterns": [
-            {
-              "include": "#string"
             }
           ]
         }
@@ -60,25 +51,42 @@
           "name": "punctuation.terminator.ifm"
         }
       },
-      "name": "meta.section.command.ifm",
+      "name": "meta.section.command.$1.ifm",
+      "contentName": "meta.section.command-tail.$1.ifm",
       "applyEndPatternLast": false,
       "patterns": [
         {
-          "begin": "\\s+",
+          "include": "#command-tail"
+        }
+      ]
+    },
+    "command-tail": {
+      "patterns": [
+        {
+          "comment": "A command body can be a string",
+          "begin": "\"(?:[^\"]|\\\\\")+(?<!\\\\)\"",
+          "beginCaptures": {
+            "0": {
+              "name": "meta.section.command.body",
+              "patterns": [
+                {
+                  "include": "#string"
+                }
+              ]
+            }
+          },
           "end": "(?=;)",
+          "applyEndPatternLast": false,
           "name": "meta.section.command.attribute-list",
           "patterns": [
             {
-              "include": "#attribute-list"
+              "include": "#space-and-attribute-list"
             }
           ]
-    },
-        {
-          "match": "\\S",
-          "name": "invalid.illegal.missing.space.before.attribute-list"
         },
         {
-          "name": "invalid.illegal.attribute-list"
+          "match": ".*",
+          "name": "invalid.illegal.command.body"
         }
       ]
     },
@@ -89,13 +97,13 @@
           "name": "meta.keyword.$1 keyword.other.$1 strong.$1"
         },
         {
-          "match": ".+",
+          "match": ".*",
           "name": "invalid.illegal.command.type"
         }
       ]
     },
     "comment": {
-      "match": "^((#)\\p{Print}*)$",
+      "match": "((#)\\p{Print}*)$",
       "captures": {
         "1": {
           "name": "comment.line.ifm"
@@ -104,6 +112,24 @@
           "name": "punctuation.definition.comment.ifm"
         }
       }
+    },
+    "space-and-attribute-list": {
+      "patterns": [
+        {
+          "begin": "\\s+",
+          "end": "(?=;)",
+          "name": "meta.section.command.attribute-list",
+          "patterns": [
+            {
+              "include": "#attribute-list"
+            }
+          ]
+        },
+        {
+          "match": "\\S",
+          "name": "invalid.illegal.missing.space.before.attribute-list"
+        }
+      ]
     },
     "string": {
       "begin": "\"",
