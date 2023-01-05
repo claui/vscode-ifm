@@ -1,0 +1,71 @@
+{
+  "name": "ifm",
+  "version": "0.1.0-snapshot",
+  "publisher": "claui",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "license": "SEE LICENSE IN README.md",
+  "displayName": "IFM – Interactive Fiction Mapping",
+  "description": "Support for the Interactive Fiction Mapping language",
+  "categories": [],
+  "keywords": [],
+  "preview": true,
+  "main": "out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ifm.action.showLog",
+        "title": "IFM – Interactive Fiction Mapping: Show extension log"
+      }
+    ],
+    "configuration": {
+      "title": "IFM – Interactive Fiction Mapping",
+      "properties": {
+        "ifm.executablePath": {
+          "type": "string",
+          "markdownDescription": "Path to the `ifm` executable, e. g. `/usr/local/bin/ifm`.  \nLeave blank if it’s already on your `PATH`.",
+          "scope": "machine-overridable"
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[ifm]": {
+        "editor.autoIndent": "none",
+        "editor.detectIndentation": false,
+        "editor.wrappingIndent": "indent",
+        "editor.rulers": [
+          40
+        ],
+        "editor.tabSize": 2
+      }
+    },
+    "grammars": [
+      {
+        "language": "ifm",
+        "scopeName": "source.ifm",
+        "path": "share/ifm.tmLanguage.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "ifm",
+        "aliases": [
+          "IFM",
+          "IFM language"
+        ],
+        "filenamePatterns": [
+          "*.ifm"
+        ],
+        "configuration": "share/language-configuration.json"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onLanguage:ifm"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "repository": "github:claui/vscode-ifm"
+}

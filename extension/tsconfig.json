@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noImplicitAny": true,
+    "outDir": "out",
+    "strictNullChecks": true,
+    "target": "ES2022"
+  },
+  "include": [
+    "src",
+    "test"
+  ]
+}
