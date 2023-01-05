@@ -3,6 +3,19 @@
   "scopeName": "source.ifm",
   "uuid": "58618e38-ae1a-4ad2-8bb9-415f2118fd66",
   "injections": {
+    "L:meta.section.command-tail.link.ifm": {
+      "comment": "Special case for the `link` command, whose body has a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
+      "patterns": [
+        {
+          "include": "#link-tail"
+        },
+        {
+          "match": "\".*",
+          "comment": "Make sure we never match the `#command-tail` include",
+          "name": "invalid.illegal.link.syntax"
+        }
+      ]
+    },
     "L:meta.section.command-tail.require.ifm": {
       "comment": "Special case for `require`, which cannot have a string literal as a body. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
       "patterns": [
@@ -12,7 +25,7 @@
           "name": "constant.numeric.decimal.ifm"
         },
         {
-          "match": ".*(?=;)",
+          "match": "\\S.*(?=;)",
           "comment": "Short-circuit so we can never reach the `#command-tail` include",
           "name": "invalid.illegal.version.number"
         }
@@ -30,8 +43,33 @@
     }
   ],
   "repository": {
+    "attribute": {
+      "match": "\\b(after|before|cmd(?:\\s+(?:from|none|to))?|dir|do|drop(?:\\s+all)?|exit|finish|follow|get|give|given|go(?:to)?|hidden|ignore|in|join|keep(?:\\s+(?:with|until))?|leave(?:\\s+all)?|length|link|lose|lost|need|nodrop|nolink|nopath|note|oneway|safe|score|start|style|tag)\\b",
+      "name": "entity.other.attribute.ifm"
+    },
     "attribute-list": {
-      "patterns": []
+      "patterns": [
+        {
+          "include": "#attribute"
+        },
+        {
+          "include": "#builtin-variable"
+        },
+        {
+          "include": "#compass"
+        },
+        {
+          "include": "#disallow-reserved-words"
+        }
+      ]
+    },
+    "builtin-variable": {
+      "patterns": [
+        {
+          "match": "\\b(it|last|them)\\b",
+          "name": "variable.language.ifm"
+        }
+      ]
     },
     "command": {
       "begin": "(\\w+)\\s+",
@@ -77,7 +115,6 @@
           },
           "end": "(?=;)",
           "applyEndPatternLast": false,
-          "name": "meta.section.command.attribute-list",
           "patterns": [
             {
               "include": "#space-and-attribute-list"
@@ -93,7 +130,7 @@
     "command-type": {
       "patterns": [
         {
-          "match": "(require|room|title)",
+          "match": "endstyle|link|item|join|map|require|room|style|task|title",
           "name": "meta.keyword.$1 keyword.other.$1 strong.$1"
         },
         {
@@ -112,6 +149,49 @@
           "name": "punctuation.definition.comment.ifm"
         }
       }
+    },
+    "compass": {
+      "match": "\\b(n(w|e)?|north(west|east)?|s(w|e)?|south(west|east)?|w(est)?|e(ast)?)\\b",
+      "name": "variable.other.enummember.compass"
+    },
+    "disallow-reserved-words": {
+      "match": "\\b(endstyle|link|item|join|map|require|room|task|title|to)\\b",
+      "name": "invalid.illegal.reserved.word"
+    },
+    "link-tail": {
+      "begin": "(\\w+)\\s+(to)\\s+(\\w+)",
+      "beginCaptures": {
+        "1": {
+          "patterns": [
+            {
+              "include": "#builtin-variable"
+            },
+            {
+              "include": "#tag-name"
+            }
+          ]
+        },
+        "2": {
+          "name": "keyword.operator.wordlike.to"
+        },
+        "3": {
+          "patterns": [
+            {
+              "include": "#builtin-variable"
+            },
+            {
+              "include": "#tag-name"
+            }
+          ]
+        }
+      },
+      "end": "(?=;)",
+      "applyEndPatternLast": false,
+      "patterns": [
+        {
+          "include": "#space-and-attribute-list"
+        }
+      ]
     },
     "space-and-attribute-list": {
       "patterns": [
@@ -151,6 +231,10 @@
           "name": "constant.character.escape.ifm"
         }
       ]
+    },
+    "tag-name": {
+      "match": "\\b[a-zA-Z][a-zA-Z0-9_]*\\b",
+      "name": "variable.other.constant.id.ifm"
     }
   }
 }
