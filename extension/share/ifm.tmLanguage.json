@@ -155,7 +155,7 @@
     },
     "compass": {
       "match": "\\b(n(w|e)?|north(west|east)?|s(w|e)?|south(west|east)?|w(est)?|e(ast)?)\\b",
-      "name": "variable.other.enummember.compass"
+      "name": "constant.character.compass"
     },
     "disallow-reserved-words": {
       "match": "\\b(endstyle|link|item|join|map|require|room|task|title|to)\\b",
