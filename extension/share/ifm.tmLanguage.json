@@ -282,7 +282,7 @@
       "patterns": [
         {
           "comment": "A command body can be a string",
-          "begin": "\"(?:[^\"]|\\\\\")+(?<!\\\\)\"",
+          "begin": "\"(?:[^\"]|\\\\\")*(?<!\\\\)\"",
           "beginCaptures": {
             "0": {
               "name": "meta.section.command.body",
