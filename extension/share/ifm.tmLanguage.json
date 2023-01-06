@@ -78,7 +78,7 @@
       "begin": "(\\w+)\\s+",
       "beginCaptures": {
         "1": {
-          "name": "meta.section.tag.command.$1.type",
+          "name": "meta.section.command.$1.type",
           "patterns": [
             {
               "include": "#command-type"
