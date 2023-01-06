@@ -31,6 +31,16 @@
       ]
     },
     "R:meta.section.attribute-expression.____": {},
+    "R:meta.section.attribute-expression.cmd": {
+      "patterns": [
+        {
+          "include": "#builtin-keyword"
+        },
+        {
+          "include": "#string"
+        }
+      ]
+    },
     "R:meta.section.attribute-expression.dir": {
       "patterns": [
         {
