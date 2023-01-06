@@ -24,8 +24,8 @@
     }
   ],
   "search.exclude": {
-    "/.yarn": true,
-    "/.pnp.*": true,
+    "**/.yarn": true,
+    "**/.pnp.*": true,
     "/extension/out": true
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
