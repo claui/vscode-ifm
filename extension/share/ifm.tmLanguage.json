@@ -125,7 +125,7 @@
           ]
         }
       },
-      "end": "(?=\\s*(?:(?:after|before|cmd|dir|do|drop|exit|finish|follow|get|give|given|go|hidden|ignore|(?<!go\\s+)in|join|keep|leave|length|link|lose|lost|need|nodrop|nolink|nopath|note|oneway|safe|score|start|style|tag)\\b|;))",
+      "end": "(?=\\s*(?:(?:after|before|cmd|dir|do|drop|exit|finish|follow|get|give|given|go(?:to)?|hidden|ignore|(?<!go\\s+)in|join|keep|leave|length|link|lose|lost|need|nodrop|nolink|nopath|note|oneway|safe|score|start|style|tag)\\b|;))",
       "name": "meta.section.attribute-expression.$1",
       "patterns": [
         {
