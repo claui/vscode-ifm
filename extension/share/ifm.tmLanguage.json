@@ -30,6 +30,46 @@
           "name": "invalid.illegal.version.number"
         }
       ]
+    },
+    "R:meta.section.attribute-expression.____": {},
+    "R:meta.section.attribute-expression.go": {
+      "patterns": [
+        {
+          "include": "#compass"
+        },
+        {
+          "include": "#otherdir"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.dir, meta.section.attribute-expression.exit": {
+      "patterns": [
+        {
+          "include": "#compass"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.hidden, meta.section.attribute-expression.nopath, meta.section.attribute-expression.oneway": {
+      "patterns": [
+        {
+          "match": "\\S+",
+          "name": "invalid.illegal.extraneous.argument"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.after, meta.section.attribute-expression.before, meta.section.attribute-expression.lose": {
+      "patterns": [
+        {
+          "include": "#id-list"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.in, meta.section.attribute-expression.tag": {
+      "patterns": [
+        {
+          "include": "#id"
+        }
+      ]
     }
   },
   "patterns": [
@@ -43,34 +83,35 @@
     }
   ],
   "repository": {
-    "attribute": {
+    "attribute-name": {
       "match": "\\b(after|before|cmd(?:\\s+(?:from|none|to))?|dir|do|drop(?:\\s+all)?|exit|finish|follow|get|give|given|go(?:to)?|hidden|ignore|in|join|keep(?:\\s+(?:with|until))?|leave(?:\\s+all)?|length|link|lose|lost|need|nodrop|nolink|nopath|note|oneway|safe|score|start|style|tag)\\b",
-      "name": "entity.other.attribute.ifm"
+      "name": "entity.other.attribute.$1.ifm"
     },
     "attribute-list": {
+      "begin": "\\b(\\w+)\\s+",
+      "beginCaptures": {
+        "1": {
+          "name": "meta.section.attribute.name.$1",
+          "patterns": [
+            {
+              "include": "#attribute-name"
+            }
+          ]
+        }
+      },
+      "end": "(?=\\s*(?:(?:after|before|cmd|dir|do|drop|exit|finish|follow|get|give|given|go|hidden|ignore|in|join|keep|leave|length|link|lose|lost|need|nodrop|nolink|nopath|note|oneway|safe|score|start|style|tag)\\b|;))",
+      "name": "meta.section.attribute-expression.$1",
       "patterns": [
-        {
-          "include": "#attribute"
-        },
-        {
-          "include": "#builtin-keyword"
-        },
-        {
-          "include": "#builtin-variable"
-        },
-        {
-          "include": "#compass"
-        },
         {
           "include": "#disallow-reserved-words"
         }
       ]
     },
     "builtin-keyword": {
-      "match": "\\b(from)\\b",
+      "match": "\\b(from|none|to|with|until)\\b",
       "name": "keyword.operator.wordlike.$1.ifm"
     },
-    "builtin-variable": {
+    "builtin-reference": {
       "match": "\\b(it|last|them)\\b",
       "name": "variable.language.$1.ifm"
     },
@@ -158,8 +199,28 @@
       "name": "constant.character.compass"
     },
     "disallow-reserved-words": {
-      "match": "\\b(endstyle|link|item|join|map|require|room|task|title|to)\\b",
+      "match": "\\b(all|endstyle|link|item|join|map|require|room|task|title)\\b",
       "name": "invalid.illegal.reserved.word"
+    },
+    "id": {
+      "patterns": [
+        {
+          "include": "#builtin-reference"
+        },
+        {
+          "include": "#tag-name"
+        }
+      ]
+    },
+    "id-list": {
+      "patterns": [
+        {
+          "include": "#builtin-reference"
+        },
+        {
+          "include": "#tag-name"
+        }
+      ]
     },
     "link-tail": {
       "begin": "(\\w+)\\s+(to)\\s+(\\w+)",
@@ -167,10 +228,7 @@
         "1": {
           "patterns": [
             {
-              "include": "#builtin-variable"
-            },
-            {
-              "include": "#tag-name"
+              "include": "#id"
             }
           ]
         },
@@ -180,10 +238,7 @@
         "3": {
           "patterns": [
             {
-              "include": "#builtin-variable"
-            },
-            {
-              "include": "#tag-name"
+              "include": "#id"
             }
           ]
         }
@@ -195,6 +250,10 @@
           "include": "#space-and-attribute-list"
         }
       ]
+    },
+    "otherdir": {
+      "match": "\\b(in|down|out|up)\\b",
+      "name": "constant.character.otherdir"
     },
     "space-and-attribute-list": {
       "patterns": [
