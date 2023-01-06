@@ -19,30 +19,11 @@
     },
     "L:meta.section.command-tail.join.ifm, L:meta.section.command-tail.link.ifm": {
       "comment": "Special case for the `join` and `link` commands, whose body have a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
-      "patterns": [
-        {
-          "include": "#link-tail"
-        },
-        {
-          "match": "\".*",
-          "comment": "Make sure we never match the `#command-tail` include",
-          "name": "invalid.illegal.link.syntax"
-        }
-      ]
+      "include": "#link-tail"
     },
     "L:meta.section.command-tail.require.ifm": {
-      "comment": "Special case for `require`, which cannot have a string literal as a body. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
-      "patterns": [
-        {
-          "comment": "The only valid pattern for `require`",
-          "include": "#number"
-        },
-        {
-          "match": "\\S.*(?=;)",
-          "comment": "Short-circuit so we can never reach the `#command-tail` include",
-          "name": "invalid.illegal.version.number"
-        }
-      ]
+      "comment": "Special case for `require`, which cannot have a string literal as a body. So we’re prepending this pattern to the `#command-tail` include, giving it higher priority.",
+      "include": "#number"
     },
     "R:meta.section.attribute-expression.after, R:meta.section.attribute-expression.before, R:meta.section.attribute-expression.do, R:meta.section.attribute-expression.get, R:meta.section.attribute-expression.give, R:meta.section.attribute-expression.join, R:meta.section.attribute-expression.link, R:meta.section.attribute-expression.lose, R:meta.section.attribute-expression.need, R:meta.section.attribute-expression.style": {
       "patterns": [
