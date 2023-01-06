@@ -20,9 +20,8 @@
       "comment": "Special case for `require`, which cannot have a string literal as a body. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
       "patterns": [
         {
-          "match": "[0-9](?:[0-9]*\\.[0-9]+)*",
           "comment": "The only valid pattern for `require`",
-          "name": "constant.numeric.decimal.ifm"
+          "include": "#number"
         },
         {
           "match": "\\S.*(?=;)",
@@ -32,6 +31,16 @@
       ]
     },
     "R:meta.section.attribute-expression.____": {},
+    "R:meta.section.attribute-expression.dir": {
+      "patterns": [
+        {
+          "include": "#compass"
+        },
+        {
+          "include": "#number"
+        }
+      ]
+    },
     "R:meta.section.attribute-expression.go": {
       "patterns": [
         {
@@ -42,7 +51,7 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.dir, meta.section.attribute-expression.exit": {
+    "R:meta.section.attribute-expression.exit": {
       "patterns": [
         {
           "include": "#compass"
@@ -68,6 +77,13 @@
       "patterns": [
         {
           "include": "#id"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.score": {
+      "patterns": [
+        {
+          "include": "#number"
         }
       ]
     }
@@ -250,6 +266,10 @@
           "include": "#space-and-attribute-list"
         }
       ]
+    },
+    "number": {
+      "match": "[0-9](?:[0-9]*\\.[0-9]+)*",
+      "name": "constant.numeric.decimal.ifm"
     },
     "otherdir": {
       "match": "\\b(in|down|out|up)\\b",
