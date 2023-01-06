@@ -3,6 +3,20 @@
   "scopeName": "source.ifm",
   "uuid": "58618e38-ae1a-4ad2-8bb9-415f2118fd66",
   "injections": {
+    "L:meta.section.command-tail.endstyle.ifm, L:meta.section.command-tail.style.ifm": {
+      "comment": "Special case for the `style` and `endstyle` commands, whose body have a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
+      "patterns": [
+        {
+          "comment": "The only valid pattern for `style` and `endstyle`",
+          "include": "#id"
+        },
+        {
+          "match": "\".*",
+          "comment": "Make sure we never match the `#command-tail` include",
+          "name": "invalid.illegal.style.syntax"
+        }
+      ]
+    },
     "L:meta.section.command-tail.link.ifm": {
       "comment": "Special case for the `link` command, whose body has a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
       "patterns": [
