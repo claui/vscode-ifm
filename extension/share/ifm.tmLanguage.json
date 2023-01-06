@@ -53,6 +53,9 @@
           "include": "#attribute"
         },
         {
+          "include": "#builtin-keyword"
+        },
+        {
           "include": "#builtin-variable"
         },
         {
@@ -63,19 +66,19 @@
         }
       ]
     },
+    "builtin-keyword": {
+      "match": "\\b(from)\\b",
+      "name": "keyword.operator.wordlike.$1.ifm"
+    },
     "builtin-variable": {
-      "patterns": [
-        {
-          "match": "\\b(it|last|them)\\b",
-          "name": "variable.language.ifm"
-        }
-      ]
+      "match": "\\b(it|last|them)\\b",
+      "name": "variable.language.$1.ifm"
     },
     "command": {
       "begin": "(\\w+)\\s+",
       "beginCaptures": {
         "1": {
-          "name": "meta.section.tag.command.type",
+          "name": "meta.section.tag.command.$1.type",
           "patterns": [
             {
               "include": "#command-type"
@@ -172,7 +175,7 @@
           ]
         },
         "2": {
-          "name": "keyword.operator.wordlike.to"
+          "name": "keyword.operator.wordlike.$2.ifm"
         },
         "3": {
           "patterns": [
