@@ -3,6 +3,20 @@
   "scopeName": "source.ifm",
   "uuid": "58618e38-ae1a-4ad2-8bb9-415f2118fd66",
   "injections": {
+    "L:meta.section.command-tail.endstyle.ifm, L:meta.section.command-tail.style.ifm": {
+      "comment": "Special case for the `style` and `endstyle` commands, whose body have a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
+      "patterns": [
+        {
+          "comment": "The only valid pattern for `style` and `endstyle`",
+          "include": "#id"
+        },
+        {
+          "match": "\".*",
+          "comment": "Make sure we never match the `#command-tail` include",
+          "name": "invalid.illegal.style.syntax"
+        }
+      ]
+    },
     "L:meta.section.command-tail.link.ifm": {
       "comment": "Special case for the `link` command, whose body has a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
       "patterns": [
@@ -30,7 +44,7 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.after, meta.section.attribute-expression.before, meta.section.attribute-expression.do, meta.section.attribute-expression.get, meta.section.attribute-expression.give, meta.section.attribute-expression.join, meta.section.attribute-expression.link, meta.section.attribute-expression.lose, meta.section.attribute-expression.need, meta.section.attribute-expression.style": {
+    "R:meta.section.attribute-expression.after, R:meta.section.attribute-expression.before, R:meta.section.attribute-expression.do, R:meta.section.attribute-expression.get, R:meta.section.attribute-expression.give, R:meta.section.attribute-expression.join, R:meta.section.attribute-expression.link, R:meta.section.attribute-expression.lose, R:meta.section.attribute-expression.need, R:meta.section.attribute-expression.style": {
       "patterns": [
         {
           "include": "#id-list"
@@ -93,7 +107,7 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.finish, meta.section.attribute-expression.given, meta.section.attribute-expression.hidden, meta.section.attribute-expression.ignore, meta.section.attribute-expression.nodrop, meta.section.attribute-expression.nolink, meta.section.attribute-expression.nopath, meta.section.attribute-expression.oneway, meta.section.attribute-expression.safe, meta.section.attribute-expression.start": {
+    "R:meta.section.attribute-expression.finish, R:meta.section.attribute-expression.given, R:meta.section.attribute-expression.hidden, R:meta.section.attribute-expression.ignore, R:meta.section.attribute-expression.nodrop, R:meta.section.attribute-expression.nolink, R:meta.section.attribute-expression.nopath, R:meta.section.attribute-expression.oneway, R:meta.section.attribute-expression.safe, R:meta.section.attribute-expression.start": {
       "patterns": [
         {
           "match": "\\S+",
@@ -101,7 +115,7 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.follow, meta.section.attribute-expression.goto, meta.section.attribute-expression.in, meta.section.attribute-expression.tag": {
+    "R:meta.section.attribute-expression.follow, R:meta.section.attribute-expression.goto, R:meta.section.attribute-expression.in, R:meta.section.attribute-expression.tag": {
       "patterns": [
         {
           "include": "#id"
@@ -147,7 +161,7 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.length, meta.section.attribute-expression.score": {
+    "R:meta.section.attribute-expression.length, R:meta.section.attribute-expression.score": {
       "patterns": [
         {
           "include": "#number"
