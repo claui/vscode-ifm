@@ -30,7 +30,13 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.____": {},
+    "R:meta.section.attribute-expression.after, meta.section.attribute-expression.before, meta.section.attribute-expression.do, meta.section.attribute-expression.get, meta.section.attribute-expression.give, meta.section.attribute-expression.join, meta.section.attribute-expression.link, meta.section.attribute-expression.lose, meta.section.attribute-expression.need, meta.section.attribute-expression.style": {
+      "patterns": [
+        {
+          "include": "#id-list"
+        }
+      ]
+    },
     "R:meta.section.attribute-expression.cmd": {
       "patterns": [
         {
@@ -38,6 +44,9 @@
         },
         {
           "include": "#string"
+        },
+        {
+          "include": "#number"
         }
       ]
     },
@@ -66,13 +75,14 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.go": {
+    "R:meta.section.attribute-expression.drop": {
       "patterns": [
         {
-          "include": "#compass"
+          "match": "\\b(all|except|in|until)\\b",
+          "name": "keyword.operator.wordlike.$1.ifm"
         },
         {
-          "include": "#otherdir"
+          "include": "#id-list"
         }
       ]
     },
@@ -83,7 +93,7 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.hidden, meta.section.attribute-expression.nopath, meta.section.attribute-expression.oneway": {
+    "R:meta.section.attribute-expression.finish, meta.section.attribute-expression.given, meta.section.attribute-expression.hidden, meta.section.attribute-expression.ignore, meta.section.attribute-expression.nodrop, meta.section.attribute-expression.nolink, meta.section.attribute-expression.nopath, meta.section.attribute-expression.oneway, meta.section.attribute-expression.safe, meta.section.attribute-expression.start": {
       "patterns": [
         {
           "match": "\\S+",
@@ -91,21 +101,53 @@
         }
       ]
     },
-    "R:meta.section.attribute-expression.after, meta.section.attribute-expression.before, meta.section.attribute-expression.lose": {
-      "patterns": [
-        {
-          "include": "#id-list"
-        }
-      ]
-    },
-    "R:meta.section.attribute-expression.in, meta.section.attribute-expression.tag": {
+    "R:meta.section.attribute-expression.follow, meta.section.attribute-expression.goto, meta.section.attribute-expression.in, meta.section.attribute-expression.tag": {
       "patterns": [
         {
           "include": "#id"
         }
       ]
     },
-    "R:meta.section.attribute-expression.score": {
+    "R:meta.section.attribute-expression.go": {
+      "patterns": [
+        {
+          "include": "#compass"
+        },
+        {
+          "include": "#otherdir"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.keep": {
+      "patterns": [
+        {
+          "match": "\\b(with|until)\\s+(\\w+)",
+          "name": "keyword.operator.wordlike.$1.ifm"
+        },
+        {
+          "include": "#id-list"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.leave": {
+      "patterns": [
+        {
+          "match": "\\b(all|except)\\b",
+          "name": "keyword.operator.wordlike.$1.ifm"
+        },
+        {
+          "include": "#id-list"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.note": {
+      "patterns": [
+        {
+          "include": "#string"
+        }
+      ]
+    },
+    "R:meta.section.attribute-expression.length, meta.section.attribute-expression.score": {
       "patterns": [
         {
           "include": "#number"
