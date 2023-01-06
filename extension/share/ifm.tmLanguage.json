@@ -201,7 +201,7 @@
         {
           "begin": "\\s+",
           "end": "(?=;)",
-          "name": "meta.section.command.attribute-list",
+          "name": "meta.section.attribute-list",
           "patterns": [
             {
               "include": "#attribute-list"
