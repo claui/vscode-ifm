@@ -104,11 +104,69 @@
       "include": "#comment"
     },
     {
+      "comment": "Output variable assignment of the form `[FORMAT].ID = …;`",
+      "include": "#assignment"
+    },
+    {
       "comment": "A command, which has the form `<type> <body> [attribute-list];`",
       "include": "#command"
     }
   ],
   "repository": {
+    "assignment": {
+      "begin": "((?:\\w+\\.)?\\w+)\\s+(=)\\s+",
+      "beginCaptures": {
+        "1": {
+          "name": "meta.section.variable.$1",
+          "patterns": [
+            {
+              "include": "#variable"
+            }
+          ]
+        },
+        "2": {
+          "name": "keyword.operator.assignment.ifm"
+        }
+      },
+      "end": "(?:(in style) (\\w*))?\\s*(;)",
+      "endCaptures": {
+        "1": {
+          "name": "keyword.operator.wordlike.in-style.ifm"
+        },
+        "2": {
+          "patterns": [
+            {
+              "include": "#id"
+            }
+          ]
+        },
+        "3": {
+          "name": "punctuation.terminator.ifm"
+        }
+      },
+      "name": "meta.section.assignment.$1.ifm",
+      "contentName": "meta.section.assignment.value.ifm",
+      "applyEndPatternLast": false,
+      "patterns": [
+        {
+          "include": "#assignment-value"
+        }
+      ]
+    },
+    "assignment-value": {
+      "patterns": [
+        {
+          "include": "#string"
+        },
+        {
+          "include": "#number"
+        },
+        {
+          "match": "\\b(true|false|undef)\\b",
+          "name": "constant.language.ifm"
+        }
+      ]
+    },
     "attribute-name": {
       "match": "\\b(after|before|cmd(?:\\s+(?:from|none|to))?|dir|do|drop(?:\\s+all)?|exit|finish|follow|get|give|given|go(?:to)?|hidden|ignore|in|join|keep(?:\\s+(?:with|until))?|leave(?:\\s+all)?|length|link|lose|lost|need|nodrop|nolink|nopath|note|oneway|safe|score|start|style|tag)\\b",
       "name": "entity.other.attribute.$1.ifm"
@@ -327,6 +385,10 @@
     "tag-name": {
       "match": "\\b[a-zA-Z][a-zA-Z0-9_]*\\b",
       "name": "entity.name.label.$0.ifm"
+    },
+    "variable": {
+      "match": "\\b(\\w+)\\b",
+      "name": "entity.name.variable meta.definition.variable.name support.variable"
     }
   }
 }
