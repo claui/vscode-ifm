@@ -114,7 +114,7 @@
       "name": "entity.other.attribute.$1.ifm"
     },
     "attribute-list": {
-      "begin": "\\b(\\w+)\\s+",
+      "begin": "\\b(\\w+)\\b",
       "beginCaptures": {
         "1": {
           "name": "meta.section.attribute.name.$1",
