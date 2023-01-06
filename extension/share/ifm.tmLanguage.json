@@ -320,7 +320,7 @@
       ]
     },
     "comment": {
-      "match": "((#)\\p{Print}*)$",
+      "match": "((#).*)$",
       "captures": {
         "1": {
           "name": "comment.line.ifm"
