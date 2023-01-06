@@ -34,9 +34,6 @@
         "editor.autoIndent": "none",
         "editor.detectIndentation": false,
         "editor.wrappingIndent": "indent",
-        "editor.rulers": [
-          40
-        ],
         "editor.tabSize": 2
       }
     },
