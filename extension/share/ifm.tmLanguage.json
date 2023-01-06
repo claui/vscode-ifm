@@ -17,8 +17,8 @@
         }
       ]
     },
-    "L:meta.section.command-tail.link.ifm": {
-      "comment": "Special case for the `link` command, whose body has a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
+    "L:meta.section.command-tail.join.ifm, L:meta.section.command-tail.link.ifm": {
+      "comment": "Special case for the `join` and `link` commands, whose body have a special syntax. So we’re prepending these patterns to the `#command-tail` include, giving them higher priority.",
       "patterns": [
         {
           "include": "#link-tail"
