@@ -48,6 +48,21 @@
         },
         {
           "include": "#number"
+        },
+        {
+          "match": "\\b(from)\\s+(\\w+)",
+          "captures": {
+            "1": {
+              "name": "keyword.operator.wordlike.$1.ifm"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "include": "#id"
+                }
+              ]
+            }
+          }
         }
       ]
     },
