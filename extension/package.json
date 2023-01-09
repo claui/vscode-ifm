@@ -35,8 +35,7 @@
     },
     "configurationDefaults": {
       "[ifm]": {
-        "editor.autoIndent": "none",
-        "editor.detectIndentation": false,
+        "editor.autoIndent": "keep",
         "editor.wrappingIndent": "indent",
         "editor.tabSize": 2
       }
