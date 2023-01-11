@@ -15,8 +15,12 @@
   "contributes": {
     "commands": [
       {
+        "command": "ifm.action.refresh",
+        "title": "IFM: Refresh connection"
+      },
+      {
         "command": "ifm.action.showLog",
-        "title": "IFM – Interactive Fiction Mapping: Show extension log"
+        "title": "IFM: Show extension log"
       }
     ],
     "configuration": {
