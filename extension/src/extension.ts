@@ -89,7 +89,7 @@ export async function activate(context: ExtensionContext) {
     title: "Show extension log",
   };
 
-  return {};
+  return { ifm } as { ifm: Ifm };
 }
 
 export function deactivate() {}
