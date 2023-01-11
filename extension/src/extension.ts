@@ -7,16 +7,13 @@ import {
   DocumentSelector,
   workspace,
   LanguageStatusSeverity,
-  Disposable,
 } from "vscode";
 
-import CliFailedError from "./errors/cli-failed";
+import { Ifm, IfmCli } from "./cli-api";
+import { getIfmCli, IfmAdapter } from "./cli-api/impl";
+import CliFailedError from "./errors";
 import Logger from "./logger";
-
-import { getIfmCli } from "./cli-adapter";
-import { getIfmCliVersion, Ifm, IfmCli } from "./ifm-cli";
 import { getCurrentTimestamp } from "./time";
-import { IfmAdapter } from "./adapter";
 
 const outputChannel = window.createOutputChannel("IFM");
 const languageSelector: DocumentSelector = { language: "ifm" };
@@ -48,7 +45,7 @@ const refreshStatus = async (ifmCli: IfmCli) => {
     log.info(statusItem.detail);
     statusItem.busy = true;
 
-    const versionNumber: string = await getIfmCliVersion(ifmCli.run);
+    const versionNumber: string = await ifmCli.version;
     statusItem.text = `IFM CLI v${versionNumber}`;
     statusItem.severity = LanguageStatusSeverity.Information;
     log.info(statusItem.text);
