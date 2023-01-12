@@ -70,7 +70,7 @@ export class IfmAdapter implements Ifm {
   #nextSubscriptionId = 0;
   cli: IfmCli;
 
-  static async newInstance(): Promise<Ifm> {
+  static async newInstance(): Promise<IfmAdapter> {
     const cli: IfmCli = await getCli();
     return new IfmAdapter(cli);
   }
@@ -79,13 +79,13 @@ export class IfmAdapter implements Ifm {
     this.cli = cli;
     workspace.onDidChangeConfiguration(async (event) => {
       if (event.affectsConfiguration("ifm")) {
-        this.refreshCli(await getCli());
+        this.refreshCli();
       }
     });
   }
 
-  async refreshCli(cli: IfmCli) {
-    this.cli = cli;
+  async refreshCli() {
+    this.cli = await getCli();
     for (const subscription of this.#subscriptions.values()) {
       subscription();
     }
