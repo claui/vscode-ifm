@@ -7,20 +7,17 @@ import {
 
 import { Ifm } from "./cli-api";
 import CliFailedError from "./errors";
-import Logger from "./logger";
+import log from "./log";
 import { getCurrentTimestamp } from "./time";
 
 const languageSelector: DocumentSelector = { language: "ifm" };
 
 export class Status {
   ifm: Ifm;
-  log: Logger;
   statusItem: LanguageStatusItem;
 
-  constructor(ifm: Ifm, log: Logger) {
+  constructor(ifm: Ifm) {
     this.ifm = ifm;
-    this.log = log;
-
     this.statusItem = languages.createLanguageStatusItem(
       "ifm.status.item.version",
       languageSelector
@@ -35,26 +32,25 @@ export class Status {
   async refresh() {
     try {
       this.statusItem.text = "Querying IFM CLI version";
-      this.log.info(this.statusItem.detail);
       this.statusItem.busy = true;
 
       const versionNumber: string = await this.ifm.cli.version;
       this.statusItem.text = `IFM CLI v${versionNumber}`;
       this.statusItem.severity = LanguageStatusSeverity.Information;
-      this.log.info(this.statusItem.text);
-      this.statusItem.detail = `Last updated: ${getCurrentTimestamp()}`;
+      log.info(this.statusItem.text);
     } catch (error) {
-      this.log.error(error?.message ?? error);
-      this.statusItem.text = error.message;
       if (error instanceof CliFailedError && "cause" in error) {
-        this.statusItem.detail = `Caused by: ${error.cause}`;
-        this.log.error(`> ${error.cause}`);
+        log.error(error.message);
+        log.error("Caused by:", String(error.cause));
+        this.statusItem.text = String(error.cause);
       } else {
-        this.statusItem.detail = undefined;
+        log.error(error);
+        this.statusItem.text = error.message;
       }
       this.statusItem.severity = LanguageStatusSeverity.Error;
     } finally {
       this.statusItem.busy = false;
+      this.statusItem.detail = `Last updated: ${getCurrentTimestamp()}`;
     }
   }
 }
