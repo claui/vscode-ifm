@@ -1,12 +1,11 @@
 import { execFile } from "child_process";
-import { stdout } from "process";
 import { promisify } from "util";
 
 import { Disposable, workspace } from "vscode";
 
 import { Ifm, IfmCli } from "../cli-api";
 import CliFailedError from "../errors";
-import Logger from "../logger";
+import log from "../log";
 
 const MAX_LENGTH = 256;
 const VERSION_PATTERN = /IFM version (.*)/;
@@ -54,8 +53,7 @@ async function getCli(): Promise<IfmCli> {
   };
 
   const run = async (argv: string[]) => {
-    return execFileAsync(getExecutable(), argv)
-      .then(result => result.stdout);
+    return execFileAsync(getExecutable(), argv).then((result) => result.stdout);
   };
 
   return {
@@ -68,18 +66,16 @@ async function getCli(): Promise<IfmCli> {
 }
 
 export class IfmAdapter implements Ifm {
-  #log: Logger;
   #subscriptions: Map<number, () => void> = new Map();
   #nextSubscriptionId = 0;
   cli: IfmCli;
 
-  static async newInstance(log: Logger): Promise<Ifm> {
+  static async newInstance(): Promise<Ifm> {
     const cli: IfmCli = await getCli();
-    return new IfmAdapter(cli, log);
+    return new IfmAdapter(cli);
   }
 
-  constructor(cli: IfmCli, log: Logger) {
-    this.#log = log;
+  constructor(cli: IfmCli) {
     this.cli = cli;
     workspace.onDidChangeConfiguration(async (event) => {
       if (event.affectsConfiguration("ifm")) {
@@ -104,7 +100,7 @@ export class IfmAdapter implements Ifm {
     this.#subscriptions.set(subscriptionId, listener.bind(thisArgs));
 
     const disposable = new Disposable(() => {
-      this.#log.info(`Disposing of subscription #${subscriptionId}`);
+      log.info("Disposing of subscription", subscriptionId);
       this.#subscriptions.delete(subscriptionId);
     });
     if (disposables) {

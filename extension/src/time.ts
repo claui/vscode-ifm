@@ -1,4 +1,4 @@
-const dateTimeFormat: Intl.DateTimeFormat = new Intl.DateTimeFormat([], {
+const dateTimeFormat: Intl.DateTimeFormat = new Intl.DateTimeFormat(undefined, {
   dateStyle: "long",
   timeStyle: "long",
 });
