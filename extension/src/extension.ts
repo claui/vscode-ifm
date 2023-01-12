@@ -1,16 +1,15 @@
 import {
-  ExtensionContext,
-  LanguageStatusItem,
   commands,
-  languages,
-  window,
   DocumentSelector,
-  workspace,
+  ExtensionContext,
+  languages,
+  LanguageStatusItem,
   LanguageStatusSeverity,
+  window,
 } from "vscode";
 
 import { Ifm, IfmCli } from "./cli-api";
-import { getIfmCli, IfmAdapter } from "./cli-api/impl";
+import { IfmAdapter } from "./cli-api/impl";
 import CliFailedError from "./errors";
 import Logger from "./logger";
 import { getCurrentTimestamp } from "./time";
@@ -66,7 +65,7 @@ const refreshStatus = async (ifmCli: IfmCli) => {
 };
 
 export async function activate(context: ExtensionContext) {
-  const ifm: IfmAdapter = new IfmAdapter(await getIfmCli(context), log);
+  const ifm: Ifm = await IfmAdapter.newInstance(log);
   refreshStatus(ifm.cli);
   ifm.onDidCliChange(() => refreshStatus(ifm.cli), this);
 
@@ -75,11 +74,6 @@ export async function activate(context: ExtensionContext) {
   });
   commands.registerCommand("ifm.action.showLog", () => {
     outputChannel.show();
-  });
-  workspace.onDidChangeConfiguration(async (event) => {
-    if (event.affectsConfiguration("ifm")) {
-      ifm.refreshCli(await getIfmCli(context));
-    }
   });
   statusItem.command = {
     command: "ifm.action.showLog",
