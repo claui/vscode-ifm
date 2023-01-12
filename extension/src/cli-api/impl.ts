@@ -1,6 +1,8 @@
-import { execFileSync } from "child_process";
+import { execFile } from "child_process";
+import { stdout } from "process";
+import { promisify } from "util";
 
-import { Disposable, ExtensionContext, workspace } from "vscode";
+import { Disposable, workspace } from "vscode";
 
 import { Ifm, IfmCli } from "../cli-api";
 import CliFailedError from "../errors";
@@ -9,9 +11,11 @@ import Logger from "../logger";
 const MAX_LENGTH = 256;
 const VERSION_PATTERN = /IFM version (.*)/;
 
-const getIfmCliVersion = async (
+const execFileAsync = promisify(execFile);
+
+async function getVersion(
   cliRun: (argv: string[]) => Promise<Buffer | string>
-): Promise<string> => {
+): Promise<string> {
   let stdout: string | Buffer;
   try {
     stdout = await cliRun(["--version"]);
@@ -35,10 +39,10 @@ const getIfmCliVersion = async (
     );
   }
   return versionString.trim();
-};
+}
 
-export async function getIfmCli(context: ExtensionContext): Promise<IfmCli> {
-  const getIfmExecutable = async (): Promise<string> => {
+async function getCli(): Promise<IfmCli> {
+  const getExecutable = (): string => {
     const executablePathSetting: string | undefined = workspace
       .getConfiguration("ifm")
       .get("executablePath");
@@ -50,12 +54,13 @@ export async function getIfmCli(context: ExtensionContext): Promise<IfmCli> {
   };
 
   const run = async (argv: string[]) => {
-    return execFileSync(await getIfmExecutable(), argv);
+    return execFileAsync(getExecutable(), argv)
+      .then(result => result.stdout);
   };
 
   return {
     get version() {
-      return getIfmCliVersion(run);
+      return getVersion(run);
     },
 
     run,
@@ -68,9 +73,19 @@ export class IfmAdapter implements Ifm {
   #nextSubscriptionId = 0;
   cli: IfmCli;
 
+  static async newInstance(log: Logger): Promise<Ifm> {
+    const cli: IfmCli = await getCli();
+    return new IfmAdapter(cli, log);
+  }
+
   constructor(cli: IfmCli, log: Logger) {
     this.#log = log;
     this.cli = cli;
+    workspace.onDidChangeConfiguration(async (event) => {
+      if (event.affectsConfiguration("ifm")) {
+        this.refreshCli(await getCli());
+      }
+    });
   }
 
   async refreshCli(cli: IfmCli) {
