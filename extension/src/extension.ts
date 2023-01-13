@@ -1,27 +1,22 @@
 import {
   commands,
   DiagnosticCollection,
+  Disposable,
+  Event,
   languages,
+  TextDocument,
+  TextDocumentChangeEvent,
   Uri,
   workspace,
 } from "vscode";
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
+import { EventFilterByScheme } from "./events";
 import log from "./log";
 import { Status } from "./status";
 
 const diagnosticsByUri: Map<string, DiagnosticCollection> = new Map();
-
-function isSchemeRelevant(uri: Uri) {
-  const isExcluded: boolean = ["git", "gitfs", "output"].includes(uri.scheme);
-  if (!isExcluded) {
-    log.debug("Checking URI:", uri.toString());
-    log.debug("Scheme:", uri.scheme);
-    log.debug("Verdict:", !isExcluded);
-  }
-  return !isExcluded;
-}
 
 function updateDiagnostics(
   uri: Uri,
@@ -39,10 +34,15 @@ export async function activate() {
   commands.registerCommand("ifm.action.refresh", ifm.refreshCli, ifm);
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
-  workspace.onDidChangeTextDocument((event) => {
-    if (!isSchemeRelevant(event.document.uri)) {
-      return;
-    }
+  const schemesToExclude: string[] = ["git", "gitfs", "output"];
+  const eventFilter = new EventFilterByScheme(schemesToExclude);
+
+  const onDidChangeRelevantTextDocument: Event<TextDocumentChangeEvent> =
+    eventFilter.filter(
+      (event) => event.document.uri,
+      workspace.onDidChangeTextDocument
+    );
+  onDidChangeRelevantTextDocument((event: TextDocumentChangeEvent) => {
     const diagnostics: DiagnosticCollection | undefined = diagnosticsByUri.get(
       event.document.uri.toString()
     );
@@ -59,10 +59,12 @@ export async function activate() {
       "onDidChangeTextDocument"
     );
   });
-  workspace.onDidOpenTextDocument((document) => {
-    if (!isSchemeRelevant(document.uri)) {
-      return;
-    }
+
+  const onDidOpenRelevantTextDocument: Event<TextDocument> = eventFilter.filter(
+    (document) => document.uri,
+    workspace.onDidOpenTextDocument
+  );
+  onDidOpenRelevantTextDocument((document) => {
     if (diagnosticsByUri.has(document.uri.toString())) {
       log.warn("Found orphaned DiagnosticCollection:", document.uri.toString());
       diagnosticsByUri.delete(document.uri.toString());
@@ -73,10 +75,13 @@ export async function activate() {
     diagnosticsByUri.set(document.uri.toString(), diagnostics);
     updateDiagnostics(document.uri, diagnostics, "onDidOpenTextDocument");
   });
-  workspace.onDidCloseTextDocument((document) => {
-    if (!isSchemeRelevant(document.uri)) {
-      return;
-    }
+
+  const onDidCloseRelevantTextDocument: Event<TextDocument> =
+    eventFilter.filter(
+      (document) => document.uri,
+      workspace.onDidCloseTextDocument
+    );
+  onDidCloseRelevantTextDocument((document) => {
     if (!diagnosticsByUri.has(document.uri.toString())) {
       log.warn("Missing DiagnosticCollection:", document.uri.toString());
       return;
@@ -84,19 +89,30 @@ export async function activate() {
     diagnosticsByUri.delete(document.uri.toString());
     log.debug("Diagnostics deleted");
   });
-  for (const document of workspace.textDocuments) {
-    if (
-      !isSchemeRelevant(document.uri) ||
-      diagnosticsByUri.has(document.uri.toString())
-    ) {
-      continue;
+
+  const onDidInitiallyFindTextDocument: Event<TextDocument> = (
+    listener: (e: TextDocument) => any,
+    thisArgs?: any
+  ): Disposable => {
+    for (const document of workspace.textDocuments) {
+      listener.call(thisArgs, document);
     }
-    const diagnostics = languages.createDiagnosticCollection(
-      document.uri.toString()
+    return Disposable.from();
+  };
+  const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
+    eventFilter.filter(
+      (document) => document.uri,
+      onDidInitiallyFindTextDocument
     );
+  onDidInitiallyFindRelevantTextDocument((document) => {
+    if (diagnosticsByUri.has(document.uri.toString())) {
+      return;
+    }
+    const diagnostics: DiagnosticCollection =
+      languages.createDiagnosticCollection(document.uri.toString());
     diagnosticsByUri.set(document.uri.toString(), diagnostics);
     updateDiagnostics(document.uri, diagnostics, "initial state of workspace");
-  }
+  });
 
   return { ifm } as { ifm: Ifm };
 }
