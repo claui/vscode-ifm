@@ -10,18 +10,18 @@
     "@types/vscode": "=1.74",
     "@yarnpkg/sdks": "^2.6.3",
     "eslint": "^8.23.0",
-    "ovsx": "^0.5.1",
+    "ovsx": "=0.5.1",
     "semver": "^7.3.7",
     "typescript": "^4.8.2",
-    "vsce": "^2.10.2"
+    "vsce": "=2.14.0"
   },
   "scripts": {
     "clean-install": "yarn install && git checkout -- .vscode/settings.json '.yarn/*/LICENSE'",
     "compile": "tsc -p extension/",
-    "login": "vsce login claui",
-    "package": "yarn compile && cd extension && vsce package --no-dependencies --yarn --githubBranch main/extension",
+    "login": "yarn run -B vsce login claui",
+    "package": "yarn compile && yarn run -B vsce package --no-dependencies --yarn --cwd extension --githubBranch main/extension",
     "postinstall": "yarn sdks vscode",
-    "publish-vsce": "cd extension && vsce publish --no-dependencies --yarn --githubBranch main/extension",
+    "publish-vsce": "yarn run -B vsce publish --no-dependencies --yarn --cwd extension --githubBranch main/extension",
     "repatch": "git add -- package.json && yarn patch-commit -s \"$1\" && git checkout -- package.json && yarn clean-install",
     "upgrade-all": "printf >&2 '%s\\n\\t%s\\n' 'Run the following command line manually:' 'yarn set version stable && yarn install && yarn upgrade-packages' && false",
     "upgrade-lockfile": "yarn up -R '**' && yarn clean-install",
@@ -29,5 +29,8 @@
     "upgrade-yarn-itself": "printf >&2 '%s\\n\\t%s\\n' 'Run the following command line manually:' 'yarn set version stable && yarn install && yarn clean-install' && false",
     "vscode:prepublish": "yarn compile"
   },
-  "packageManager": "yarn@3.3.1"
+  "packageManager": "yarn@3.3.1",
+  "resolutions": {
+    "vsce@=2.14.0": "patch:vsce@npm:2.14.0#./.yarn/patches/vsce-npm-2.14.0-c875d1964f.patch"
+  }
 }
