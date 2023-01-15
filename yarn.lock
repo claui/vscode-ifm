@@ -233,6 +233,72 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vscode/vsce@npm:2.16.0, @vscode/vsce@npm:^2.15.0":
+  version: 2.16.0
+  resolution: "@vscode/vsce@npm:2.16.0"
+  dependencies:
+    azure-devops-node-api: ^11.0.1
+    chalk: ^2.4.2
+    cheerio: ^1.0.0-rc.9
+    commander: ^6.1.0
+    glob: ^7.0.6
+    hosted-git-info: ^4.0.2
+    keytar: ^7.7.0
+    leven: ^3.1.0
+    markdown-it: ^12.3.2
+    mime: ^1.3.4
+    minimatch: ^3.0.3
+    parse-semver: ^1.1.1
+    read: ^1.0.7
+    semver: ^5.1.0
+    tmp: ^0.2.1
+    typed-rest-client: ^1.8.4
+    url-join: ^4.0.1
+    xml2js: ^0.4.23
+    yauzl: ^2.3.1
+    yazl: ^2.2.2
+  dependenciesMeta:
+    keytar:
+      optional: true
+  bin:
+    vsce: vsce
+  checksum: dcab780b75292637d5c916f98f4e4d110e2dd8285fb7fae1d36d47cb4c5da6db2b6bc509f5b9e73ed3b8c4543ab3ba3dcb86b368404dfd15b7a474a34b7a9071
+  languageName: node
+  linkType: hard
+
+"@vscode/vsce@patch:@vscode/vsce@npm:2.16.0#./.yarn/patches/@vscode-vsce-npm-2.16.0-c171711221.patch::locator=vscode-ifm%40workspace%3A.":
+  version: 2.16.0
+  resolution: "@vscode/vsce@patch:@vscode/vsce@npm%3A2.16.0#./.yarn/patches/@vscode-vsce-npm-2.16.0-c171711221.patch::version=2.16.0&hash=3a3357&locator=vscode-ifm%40workspace%3A."
+  dependencies:
+    azure-devops-node-api: ^11.0.1
+    chalk: ^2.4.2
+    cheerio: ^1.0.0-rc.9
+    commander: ^6.1.0
+    glob: ^7.0.6
+    hosted-git-info: ^4.0.2
+    keytar: ^7.7.0
+    leven: ^3.1.0
+    markdown-it: ^12.3.2
+    mime: ^1.3.4
+    minimatch: ^3.0.3
+    parse-semver: ^1.1.1
+    read: ^1.0.7
+    semver: ^5.1.0
+    tmp: ^0.2.1
+    typed-rest-client: ^1.8.4
+    url-join: ^4.0.1
+    xml2js: ^0.4.23
+    yauzl: ^2.3.1
+    yazl: ^2.2.2
+  dependenciesMeta:
+    keytar:
+      optional: true
+  bin:
+    vsce: vsce
+  checksum: dcd2ac40b15eaa4f030e86887a8c3de89c78ef43898d9d64cdc316fbd28862320f0e618ce8e2aaf156afe9a6e15f191a442b92ab97bf59cdc32fbd9866f5d9c3
+  languageName: node
+  linkType: hard
+
 "@yarnpkg/core@npm:^3.2.4":
   version: 3.3.1
   resolution: "@yarnpkg/core@npm:3.3.1"
@@ -2382,19 +2448,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ovsx@npm:=0.5.1":
-  version: 0.5.1
-  resolution: "ovsx@npm:0.5.1"
+"ovsx@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "ovsx@npm:0.8.0"
   dependencies:
+    "@vscode/vsce": ^2.15.0
     commander: ^6.1.0
     follow-redirects: ^1.14.6
     is-ci: ^2.0.0
     leven: ^3.1.0
     tmp: ^0.2.1
-    vsce: ^2.6.3
   bin:
     ovsx: lib/ovsx
-  checksum: 9a192906319649c8840c2beb15398602c54457c4769b7d4854f83c066cdc599f63ae7f4aa14fb2e4609d993ea70b11e40bba94e964914fb1588ba4a1a4af5edb
+  checksum: 17bde873cfb339411620af7d0d0eb822575ff0e71c4a70dd6095a53b0260fc47a479591ab704e58cab6d446bc4a1491ad60f052a6cc07a79c0f38aa9edc370b5
   languageName: node
   linkType: hard
 
@@ -3225,96 +3291,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vsce@npm:2.14.0":
-  version: 2.14.0
-  resolution: "vsce@npm:2.14.0"
-  dependencies:
-    azure-devops-node-api: ^11.0.1
-    chalk: ^2.4.2
-    cheerio: ^1.0.0-rc.9
-    commander: ^6.1.0
-    glob: ^7.0.6
-    hosted-git-info: ^4.0.2
-    keytar: ^7.7.0
-    leven: ^3.1.0
-    markdown-it: ^12.3.2
-    mime: ^1.3.4
-    minimatch: ^3.0.3
-    parse-semver: ^1.1.1
-    read: ^1.0.7
-    semver: ^5.1.0
-    tmp: ^0.2.1
-    typed-rest-client: ^1.8.4
-    url-join: ^4.0.1
-    xml2js: ^0.4.23
-    yauzl: ^2.3.1
-    yazl: ^2.2.2
-  bin:
-    vsce: vsce
-  checksum: 1d74c17b0fc2e1c0e5b0f6746db48c4b7111c3bde1c6e85e23511766ee428c4763b1d0ec74af7d1acfa9041dabc798b208546f95f79dd1d8eb00903a23f7a7c7
-  languageName: node
-  linkType: hard
-
-"vsce@npm:^2.6.3":
-  version: 2.15.0
-  resolution: "vsce@npm:2.15.0"
-  dependencies:
-    azure-devops-node-api: ^11.0.1
-    chalk: ^2.4.2
-    cheerio: ^1.0.0-rc.9
-    commander: ^6.1.0
-    glob: ^7.0.6
-    hosted-git-info: ^4.0.2
-    keytar: ^7.7.0
-    leven: ^3.1.0
-    markdown-it: ^12.3.2
-    mime: ^1.3.4
-    minimatch: ^3.0.3
-    parse-semver: ^1.1.1
-    read: ^1.0.7
-    semver: ^5.1.0
-    tmp: ^0.2.1
-    typed-rest-client: ^1.8.4
-    url-join: ^4.0.1
-    xml2js: ^0.4.23
-    yauzl: ^2.3.1
-    yazl: ^2.2.2
-  bin:
-    vsce: vsce
-  checksum: 0c7b195fc6c60af9da01f950feff3e42f2ebee51d52c239b9bbeac39abe97a68886b28cafc60fdc9d927a1b618f7736b5e4d44042b84230a53f8798fb1903d1e
-  languageName: node
-  linkType: hard
-
-"vsce@patch:vsce@npm:2.14.0#./.yarn/patches/vsce-npm-2.14.0-c875d1964f.patch::locator=vscode-ifm%40workspace%3A.":
-  version: 2.14.0
-  resolution: "vsce@patch:vsce@npm%3A2.14.0#./.yarn/patches/vsce-npm-2.14.0-c875d1964f.patch::version=2.14.0&hash=688c57&locator=vscode-ifm%40workspace%3A."
-  dependencies:
-    azure-devops-node-api: ^11.0.1
-    chalk: ^2.4.2
-    cheerio: ^1.0.0-rc.9
-    commander: ^6.1.0
-    glob: ^7.0.6
-    hosted-git-info: ^4.0.2
-    keytar: ^7.7.0
-    leven: ^3.1.0
-    markdown-it: ^12.3.2
-    mime: ^1.3.4
-    minimatch: ^3.0.3
-    parse-semver: ^1.1.1
-    read: ^1.0.7
-    semver: ^5.1.0
-    tmp: ^0.2.1
-    typed-rest-client: ^1.8.4
-    url-join: ^4.0.1
-    xml2js: ^0.4.23
-    yauzl: ^2.3.1
-    yazl: ^2.2.2
-  bin:
-    vsce: vsce
-  checksum: 1941eda4f9b27d27153f00944d8abde4e3ac7201bf4e7984d15ddba5628fe91258f73be76f8814e54f05da7eab88edaee83fa66854fd2434f01d178ee47690c9
-  languageName: node
-  linkType: hard
-
 "vscode-ifm@workspace:.":
   version: 0.0.0-use.local
   resolution: "vscode-ifm@workspace:."
@@ -3322,13 +3298,13 @@ __metadata:
     "@types/node": ^18.7.13
     "@types/throttle-debounce": ^5.0.0
     "@types/vscode": =1.74
+    "@vscode/vsce": ^2.16.0
     "@yarnpkg/sdks": ^2.6.3
     eslint: ^8.23.0
-    ovsx: =0.5.1
+    ovsx: ^0.8.0
     semver: ^7.3.7
     throttle-debounce: 5.0.0
     typescript: ^4.8.2
-    vsce: =2.14.0
   languageName: unknown
   linkType: soft
 
