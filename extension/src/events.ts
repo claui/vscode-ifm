@@ -1,5 +1,42 @@
 import { Event, Uri, Disposable } from "vscode";
-import log from "./log";
+
+import { throttle } from "throttle-debounce";
+
+export interface EventGroup<T, U> {
+  group: U,
+  events: T[],
+};
+
+export function throttleEvent<T, U>(
+  delayMs: number,
+  groupBy: (event: T) => U,
+  event: Event<T>
+): Event<EventGroup<T, U>> {
+  return (
+    listener: (eventGroup: EventGroup<T, U>) => any,
+    listenerThisArgs?: any,
+    disposables?: Disposable[]
+  ): Disposable => {
+    const pendingEventsByGroup: Map<U, T[]> = new Map();
+    const throttledListenersByGroup: Map<U, () => void> = new Map();
+    const upstreamListener: (e: T) => void = (e) => {
+      const group: U = groupBy(e);
+      if (!pendingEventsByGroup.has(group)) {
+        pendingEventsByGroup.set(group, []);
+      }
+      if (!throttledListenersByGroup.has(group)) {
+        throttledListenersByGroup.set(group, throttle(delayMs, () => {
+          const events: T[] = pendingEventsByGroup.get(group)!;
+          pendingEventsByGroup.delete(group);
+          listener.call(listenerThisArgs, { group, events });
+        }));
+      }
+      pendingEventsByGroup.get(group)!.push(e);
+      throttledListenersByGroup.get(group)!();
+    };
+    return event(upstreamListener, undefined, disposables);
+  };
+}
 
 export class EventFilterByScheme {
   #schemesToExclude: Array<String>;

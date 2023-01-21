@@ -1,6 +1,10 @@
 {
   "name": "vscode-ifm",
   "license": "SEE LICENSE IN README.md",
+  "dependencies": {
+    "@types/throttle-debounce": "^5.0.0",
+    "throttle-debounce": "5.0.0"
+  },
   "devDependencies": {
     "@types/node": "^18.7.13",
     "@types/vscode": "=1.74",
