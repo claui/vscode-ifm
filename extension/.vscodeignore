@@ -1,2 +1,3 @@
 **/*.ts
+examples/
 tsconfig.json
