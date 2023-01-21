@@ -1,6 +1,7 @@
 **/*.vsix
 /extension/dist/
 /extension/examples/
+/extension/work/
 /.pnp.*
 /.yarn/*
 !/.yarn/patches

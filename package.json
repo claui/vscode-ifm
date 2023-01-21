@@ -10,6 +10,7 @@
     "@types/vscode": "=1.74",
     "@vscode/vsce": "^2.16.0",
     "@yarnpkg/sdks": "^2.6.3",
+    "esbuild": "^0.17.3",
     "eslint": "^8.32.0",
     "ovsx": "^0.8.0",
     "semver": "^7.3.8",
@@ -17,7 +18,7 @@
   },
   "scripts": {
     "clean-install": "yarn install && git checkout -- .vscode/settings.json '.yarn/*/LICENSE'",
-    "compile": "tsc -p extension/",
+    "compile": "tsc -p extension/ && yarn run esbuild --bundle --external:vscode --outdir=./extension/dist/ --platform=node ./extension/work/tsc-out/extension.js",
     "login": "yarn run -B vsce login claui",
     "package": "yarn compile && yarn run -B vsce package --no-dependencies --yarn --cwd extension --githubBranch main/extension",
     "postinstall": "yarn sdks vscode",
