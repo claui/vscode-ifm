@@ -3,7 +3,7 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "noImplicitAny": true,
-    "outDir": "out",
+    "outDir": "dist",
     "strictNullChecks": true,
     "target": "ES2022"
   },
