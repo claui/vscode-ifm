@@ -9,13 +9,7 @@ export class EventFilterByScheme {
   }
 
   isSchemeRelevant(uri: Uri): boolean {
-    const isExcluded: boolean = this.#schemesToExclude.includes(uri.scheme);
-    if (!isExcluded) {
-      log.debug("Checking URI:", uri.toString());
-      log.debug("Scheme:", uri.scheme);
-      log.debug("Verdict:", !isExcluded);
-    }
-    return !isExcluded;
+    return !this.#schemesToExclude.includes(uri.scheme);
   }
 
   filter<T>(uriSupplier: (event: T) => Uri, event: Event<T>): Event<T> {
