@@ -212,6 +212,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/throttle-debounce@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@types/throttle-debounce@npm:5.0.0"
+  checksum: f0b1f626816154466a6c7699fa9a87614f2b65c649654d02456e3603c38c29457b40d26c2ac820c2c44574e92f210c21b0cdce747b578d27566d5faa1daaae7e
+  languageName: node
+  linkType: hard
+
 "@types/treeify@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/treeify@npm:1.0.0"
@@ -3045,6 +3052,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"throttle-debounce@npm:5.0.0":
+  version: 5.0.0
+  resolution: "throttle-debounce@npm:5.0.0"
+  checksum: aa8bf25828b4f8645ce863589de05d6807ea3debc147ce7d89624638ff8a16792d6d0baa0f8a32a260f0b163444d74020c6087b713ae561fde594b97b6e51f28
+  languageName: node
+  linkType: hard
+
 "tinylogic@npm:^1.0.3":
   version: 1.0.3
   resolution: "tinylogic@npm:1.0.3"
@@ -3246,11 +3260,13 @@ __metadata:
   resolution: "vscode-ifm@workspace:."
   dependencies:
     "@types/node": ^18.7.13
+    "@types/throttle-debounce": ^5.0.0
     "@types/vscode": =1.74
     "@yarnpkg/sdks": ^2.6.3
     eslint: ^8.23.0
     ovsx: ^0.5.1
     semver: ^7.3.7
+    throttle-debounce: 5.0.0
     typescript: ^4.8.2
     vsce: ^2.10.2
   languageName: unknown
