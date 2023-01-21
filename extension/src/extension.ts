@@ -12,7 +12,7 @@ import {
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
-import { EventFilterByScheme, EventGroup, throttleEvent } from "./events";
+import { EventFilterByScheme, throttleEvent } from "./events";
 import log from "./log";
 import { Status } from "./status";
 
@@ -37,9 +37,7 @@ export async function activate() {
   const schemesToExclude: string[] = ["git", "gitfs", "output"];
   const eventFilter = new EventFilterByScheme(schemesToExclude);
 
-  const onDidChangeRelevantTextDocument: Event<
-    EventGroup<TextDocumentChangeEvent, TextDocument>
-  > = throttleEvent(
+  const onDidChangeRelevantTextDocument: Event<TextDocument> = throttleEvent(
     1000,
     (e: TextDocumentChangeEvent) => e.document,
     eventFilter.filter(
@@ -47,21 +45,20 @@ export async function activate() {
       workspace.onDidChangeTextDocument
     )
   );
-  onDidChangeRelevantTextDocument(
-    (eventGroup: EventGroup<TextDocumentChangeEvent, TextDocument>) => {
-      const uri: Uri = eventGroup.group.uri;
-      const diagnostics: DiagnosticCollection | undefined =
-        diagnosticsByUri.get(uri.toString());
-      if (!diagnostics) {
-        log.warn("Missing DiagnosticCollection:", uri.toString());
-        const diagnostics: DiagnosticCollection =
-          languages.createDiagnosticCollection(uri.toString());
-        diagnosticsByUri.set(uri.toString(), diagnostics);
-        return;
-      }
-      updateDiagnostics(uri, diagnostics, "onDidChangeTextDocument");
+  onDidChangeRelevantTextDocument((textDocument) => {
+    const uri: Uri = textDocument.uri;
+    const diagnostics: DiagnosticCollection | undefined = diagnosticsByUri.get(
+      uri.toString()
+    );
+    if (!diagnostics) {
+      log.warn("Missing DiagnosticCollection:", uri.toString());
+      const diagnostics: DiagnosticCollection =
+        languages.createDiagnosticCollection(uri.toString());
+      diagnosticsByUri.set(uri.toString(), diagnostics);
+      return;
     }
-  );
+    updateDiagnostics(uri, diagnostics, "onDidChangeTextDocument");
+  });
 
   const onDidOpenRelevantTextDocument: Event<TextDocument> = eventFilter.filter(
     (document) => document.uri,
