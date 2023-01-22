@@ -2,10 +2,39 @@ import { Event, Uri, Disposable } from "vscode";
 
 import { throttle } from "throttle-debounce";
 
+type Arr = readonly unknown[];
+
+export interface FilterFunction<T, U, A extends Arr> {
+  (...args: [...A, Event<T>]): Event<U>;
+}
+
+export function filterEvent<T>(event: Event<T>): FilterEvent<T> {
+  return new FilterEvent(event);
+}
+
+class FilterEvent<T> {
+  #upstreamEvent: Event<T>;
+
+  constructor(event: Event<T>) {
+    this.#upstreamEvent = event;
+  }
+
+  through<U, A extends Arr>(
+    fn: FilterFunction<T, U, A>,
+    ...args: A
+  ): FilterEvent<U> {
+    return filterEvent(fn(...args, this.#upstreamEvent));
+  }
+
+  commit(): Event<T> {
+    return this.#upstreamEvent;
+  }
+}
+
 export function throttleEvent<T, U>(
   delayMs: number,
   groupBy: (event: T) => U,
-  event: Event<T>
+  upstreamEvent: Event<T>
 ): Event<U> {
   return (
     listener: (eventGroup: U) => any,
@@ -23,36 +52,32 @@ export function throttleEvent<T, U>(
       }
       throttledListenersByGroup.get(eventGroup)!();
     };
-    return event(upstreamListener, undefined, disposables);
+    return upstreamEvent(upstreamListener, undefined, disposables);
   };
 }
 
-export class EventFilterByScheme {
-  #schemesToExclude: Array<String>;
+export function excludeUriSchemes<T>(
+  schemesToExclude: Iterable<String>,
+  extractUri: (event: T) => Uri,
+  upstreamEvent: Event<T>
+): Event<T> {
+  const schemesToExcludeArray: String[] = Array.from(schemesToExclude);
 
-  constructor(schemesToExclude: Iterable<String>) {
-    this.#schemesToExclude = Array.from(schemesToExclude);
+  function isSchemeRelevant(uri: Uri): boolean {
+    return !schemesToExcludeArray.includes(uri.scheme);
   }
 
-  isSchemeRelevant(uri: Uri): boolean {
-    return !this.#schemesToExclude.includes(uri.scheme);
-  }
-
-  filter<T>(uriSupplier: (event: T) => Uri, event: Event<T>): Event<T> {
-    return (
-      listener: (e: T) => any,
-      listenerThisArgs?: any,
-      disposables?: Disposable[]
-    ): Disposable => {
-      const filterThis: this = this;
-      const upstreamListener: (e: T) => any = (e) => {
-        const uri = uriSupplier(e);
-        if (!this.isSchemeRelevant(uri)) {
-          return;
-        }
-        return listener.call(listenerThisArgs, e);
-      };
-      return event(upstreamListener, filterThis, disposables);
+  return (
+    listener: (e: T) => any,
+    listenerThisArgs?: any,
+    disposables?: Disposable[]
+  ): Disposable => {
+    const upstreamListener: (e: T) => any = (e) => {
+      if (!isSchemeRelevant(extractUri(e))) {
+        return;
+      }
+      return listener.call(listenerThisArgs, e);
     };
-  }
+    return upstreamEvent(upstreamListener, this, disposables);
+  };
 }
