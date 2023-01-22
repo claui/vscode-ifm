@@ -1,30 +1,18 @@
-import {
-  commands,
-  DiagnosticCollection,
-  Disposable,
-  Event,
-  languages,
-  TextDocument,
-  TextDocumentChangeEvent,
-  Uri,
-  workspace,
-} from "vscode";
+import { commands, DiagnosticCollection, languages, Uri } from "vscode";
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
-import { excludeUriSchemes, streamEvents, ignoreIfAlreadyClosed, throttleEvent } from "./events";
+import { updateDiagnostics } from "./diagnostics";
+import {
+  onDidChangeRelevantTextDocument,
+  onDidCloseRelevantTextDocument,
+  onDidInitiallyFindRelevantTextDocument,
+  onDidOpenRelevantTextDocument,
+} from "./events";
 import log from "./log";
 import { Status } from "./status";
 
 const diagnosticsByUri: Map<string, DiagnosticCollection> = new Map();
-
-function updateDiagnostics(
-  uri: Uri,
-  diagnosticCollection: DiagnosticCollection,
-  reason: string
-) {
-  log.info(reason, uri.toString());
-}
 
 export async function activate() {
   const ifm: IfmAdapter = await IfmAdapter.newInstance();
@@ -34,74 +22,17 @@ export async function activate() {
   commands.registerCommand("ifm.action.refresh", ifm.refreshCli, ifm);
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
-  const schemesToExclude: string[] = ["git", "gitfs", "output"];
-
-  function excludeIrrelevantTextDocuments(
-    e: Event<TextDocument>
-  ): Event<TextDocument> {
-    return excludeUriSchemes(
-      schemesToExclude,
-      (document: TextDocument) => document.uri,
-      e
-    );
-  }
-
-  function excludeIrrelevantTextDocumentChangeEvents(
-    e: Event<TextDocumentChangeEvent>
-  ): Event<TextDocumentChangeEvent> {
-    return excludeUriSchemes(
-      schemesToExclude,
-      (e: TextDocumentChangeEvent) => e.document.uri,
-      e
-    );
-  }
-
-  const onDidInitiallyFindTextDocument: Event<TextDocument> = (
-    listener: (e: TextDocument) => any,
-    thisArgs?: any
-  ): Disposable => {
-    for (const document of workspace.textDocuments) {
-      listener.call(thisArgs, document);
-    }
-    return Disposable.from();
-  };
-
-  const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
-    streamEvents(onDidInitiallyFindTextDocument)
-      .through(excludeIrrelevantTextDocuments)
-      .commit();
-
-  const onDidChangeRelevantTextDocument: Event<TextDocument> = streamEvents(
-    workspace.onDidChangeTextDocument
-  )
-    .through(excludeIrrelevantTextDocumentChangeEvents)
-    .through(throttleEvent, 1000, (e: TextDocumentChangeEvent) => e.document)
-    .through(ignoreIfAlreadyClosed)
-    .commit();
-
-  const onDidOpenRelevantTextDocument: Event<TextDocument> = streamEvents(
-    workspace.onDidOpenTextDocument
-  )
-    .through(excludeIrrelevantTextDocuments)
-    .commit();
-
-  const onDidCloseRelevantTextDocument: Event<TextDocument> = streamEvents(
-    workspace.onDidCloseTextDocument
-  )
-    .through(excludeIrrelevantTextDocuments)
-    .commit();
-
-  onDidInitiallyFindRelevantTextDocument((document) => {
+  onDidInitiallyFindRelevantTextDocument(async (document) => {
     if (diagnosticsByUri.has(document.uri.toString())) {
       return;
     }
     const diagnostics: DiagnosticCollection =
       languages.createDiagnosticCollection(document.uri.toString());
     diagnosticsByUri.set(document.uri.toString(), diagnostics);
-    updateDiagnostics(document.uri, diagnostics, "initial state of workspace");
+    await updateDiagnostics(document.uri, diagnostics, ifm, "onDidInitiallyFindRelevantTextDocument");
   });
 
-  onDidChangeRelevantTextDocument((textDocument) => {
+  onDidChangeRelevantTextDocument(async (textDocument) => {
     const uri: Uri = textDocument.uri;
     const diagnostics: DiagnosticCollection | undefined = diagnosticsByUri.get(
       uri.toString()
@@ -113,19 +44,19 @@ export async function activate() {
       diagnosticsByUri.set(uri.toString(), diagnostics);
       return;
     }
-    updateDiagnostics(uri, diagnostics, "onDidChangeTextDocument");
+    await updateDiagnostics(uri, diagnostics, ifm, "onDidChangeRelevantTextDocument");
   });
 
-  onDidOpenRelevantTextDocument((document) => {
+  onDidOpenRelevantTextDocument(async (document) => {
     if (diagnosticsByUri.has(document.uri.toString())) {
       log.warn("Found orphaned DiagnosticCollection:", document.uri.toString());
       diagnosticsByUri.delete(document.uri.toString());
     }
-    const diagnostics = languages.createDiagnosticCollection(
+    const diagnostics: DiagnosticCollection = languages.createDiagnosticCollection(
       document.uri.toString()
     );
     diagnosticsByUri.set(document.uri.toString(), diagnostics);
-    updateDiagnostics(document.uri, diagnostics, "onDidOpenTextDocument");
+    await updateDiagnostics(document.uri, diagnostics, ifm, "onDidOpenRelevantTextDocument");
   });
 
   onDidCloseRelevantTextDocument((document) => {
