@@ -7,29 +7,30 @@ import {
   TextDocument,
 } from "vscode";
 
-import { Ifm } from "./cli-api";
+import { DocumentParsedEvent, Ifm } from "./cli-api";
 import log from "./log";
-import { getCurrentTimestamp } from "./time";
 
-const diagnosticCollection: DiagnosticCollection =
-  languages.createDiagnosticCollection("IFM");
+export class Diagnostics {
+  #diagnosticCollection: DiagnosticCollection =
+    languages.createDiagnosticCollection("IFM");
 
-export async function updateDiagnostics(
-  document: TextDocument,
-  ifm: Ifm,
-  reason: string
-) {
-  log.info(reason, document.uri.toString());
-  const diagnostics: Diagnostic[] = [
-    new Diagnostic(
-      new Range(4, 0, 7, 0),
-      `Current time is ${getCurrentTimestamp()}`,
-      DiagnosticSeverity.Error
-    ),
-  ];
-  diagnosticCollection.set(document.uri, diagnostics);
-}
+  constructor(ifm: Ifm) {
+    ifm.onDidParseDocument(this.refresh, this);
+  }
 
-export function deleteDiagnostics(document: TextDocument) {
-  diagnosticCollection.delete(document.uri);
+  async refresh(event: DocumentParsedEvent) {
+    log.info("Refreshing diagnostics", event.document.uri.toString());
+    const diagnostics: Diagnostic[] = event.stderr
+      .split("\n")
+      .filter((line) => line.length)
+      .map((line) => {
+        const range: Range = new Range(0, 0, 1, 0);
+        return new Diagnostic(range, line, DiagnosticSeverity.Warning);
+      });
+    this.#diagnosticCollection.set(event.document.uri, diagnostics);
+  }
+
+  delete(document: TextDocument) {
+    this.#diagnosticCollection.delete(document.uri);
+  }
 }
