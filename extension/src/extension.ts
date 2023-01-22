@@ -1,8 +1,8 @@
-import { commands, DiagnosticCollection, languages, Uri } from "vscode";
+import { commands } from "vscode";
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
-import { updateDiagnostics } from "./diagnostics";
+import { deleteDiagnostics, updateDiagnostics } from "./diagnostics";
 import {
   onDidChangeRelevantTextDocument,
   onDidCloseRelevantTextDocument,
@@ -11,8 +11,6 @@ import {
 } from "./events";
 import log from "./log";
 import { Status } from "./status";
-
-const diagnosticsByUri: Map<string, DiagnosticCollection> = new Map();
 
 export async function activate() {
   const ifm: IfmAdapter = await IfmAdapter.newInstance();
@@ -23,48 +21,27 @@ export async function activate() {
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
   onDidInitiallyFindRelevantTextDocument(async (document) => {
-    if (diagnosticsByUri.has(document.uri.toString())) {
-      return;
-    }
-    const diagnostics: DiagnosticCollection =
-      languages.createDiagnosticCollection(document.uri.toString());
-    diagnosticsByUri.set(document.uri.toString(), diagnostics);
-    await updateDiagnostics(document.uri, diagnostics, ifm, "onDidInitiallyFindRelevantTextDocument");
+    await updateDiagnostics(
+      document,
+      ifm,
+      "onDidInitiallyFindRelevantTextDocument"
+    );
   });
 
   onDidChangeRelevantTextDocument(async (textDocument) => {
-    const uri: Uri = textDocument.uri;
-    const diagnostics: DiagnosticCollection | undefined = diagnosticsByUri.get(
-      uri.toString()
+    await updateDiagnostics(
+      textDocument,
+      ifm,
+      "onDidChangeRelevantTextDocument"
     );
-    if (!diagnostics) {
-      log.warn("Missing DiagnosticCollection:", uri.toString());
-      const diagnostics: DiagnosticCollection =
-        languages.createDiagnosticCollection(uri.toString());
-      diagnosticsByUri.set(uri.toString(), diagnostics);
-      return;
-    }
-    await updateDiagnostics(uri, diagnostics, ifm, "onDidChangeRelevantTextDocument");
   });
 
   onDidOpenRelevantTextDocument(async (document) => {
-    if (diagnosticsByUri.has(document.uri.toString())) {
-      log.warn("Found orphaned DiagnosticCollection:", document.uri.toString());
-      diagnosticsByUri.delete(document.uri.toString());
-    }
-    const diagnostics: DiagnosticCollection = languages.createDiagnosticCollection(
-      document.uri.toString()
-    );
-    diagnosticsByUri.set(document.uri.toString(), diagnostics);
-    await updateDiagnostics(document.uri, diagnostics, ifm, "onDidOpenRelevantTextDocument");
+    await updateDiagnostics(document, ifm, "onDidOpenRelevantTextDocument");
   });
 
   onDidCloseRelevantTextDocument((document) => {
-    if (!diagnosticsByUri.has(document.uri.toString())) {
-      log.warn("Missing DiagnosticCollection:", document.uri.toString());
-      return;
-    }
-    diagnosticsByUri.delete(document.uri.toString());
+    deleteDiagnostics(document);
     log.debug("Diagnostics deleted");
   });
 
