@@ -1,9 +1,9 @@
 import { execFile } from "child_process";
 import { promisify } from "util";
 
-import { Disposable, workspace } from "vscode";
+import { Disposable, TextDocument, workspace } from "vscode";
 
-import { Ifm, IfmCli } from "../cli-api";
+import { CliOutput, DocumentParsedEvent, Ifm, IfmCli } from "../cli-api";
 import CliFailedError from "../errors";
 import log from "../log";
 
@@ -13,22 +13,21 @@ const VERSION_PATTERN = /IFM version (.*)/;
 const execFileAsync = promisify(execFile);
 
 async function getVersion(
-  cliRun: (argv: string[]) => Promise<Buffer | string>
+  cliRun: (argv: string[]) => Promise<{ stdout: string; stderr: string }>
 ): Promise<string> {
-  let stdout: string | Buffer;
+  let stdout: string;
   try {
-    stdout = await cliRun(["--version"]);
+    stdout = (await cliRun(["--version"])).stdout;
   } catch (error) {
     throw new CliFailedError("Unable to obtain IFM CLI version", {
       cause: error,
     });
   }
 
-  const stdoutString = typeof stdout == "string" ? stdout : stdout.toString();
-  const matchingGroups = VERSION_PATTERN.exec(stdoutString);
+  const matchingGroups = VERSION_PATTERN.exec(stdout);
   if (!matchingGroups || matchingGroups.length != 2) {
     throw new CliFailedError(
-      `No version number found in IFM output: ${stdoutString}`
+      `No version number found in IFM output: ${stdout}`
     );
   }
   const versionString = matchingGroups[1];
@@ -53,7 +52,7 @@ async function getCli(): Promise<IfmCli> {
   };
 
   const run = async (argv: string[]) => {
-    return execFileAsync(getExecutable(), argv).then((result) => result.stdout);
+    return execFileAsync(getExecutable(), argv);
   };
 
   return {
@@ -66,7 +65,11 @@ async function getCli(): Promise<IfmCli> {
 }
 
 export class IfmAdapter implements Ifm {
-  #subscriptions: Map<number, () => void> = new Map();
+  #didCliChangeSubscriptions: Map<number, () => void> = new Map();
+  #didParseDocumentSubscriptions: Map<
+    number,
+    (e: DocumentParsedEvent) => void
+  > = new Map();
   #nextSubscriptionId = 0;
   cli: IfmCli;
 
@@ -86,7 +89,7 @@ export class IfmAdapter implements Ifm {
 
   async refreshCli() {
     this.cli = await getCli();
-    for (const subscription of this.#subscriptions.values()) {
+    for (const subscription of this.#didCliChangeSubscriptions.values()) {
       subscription();
     }
   }
@@ -97,11 +100,61 @@ export class IfmAdapter implements Ifm {
     disposables?: Disposable[]
   ) {
     const subscriptionId: number = this.#nextSubscriptionId++;
-    this.#subscriptions.set(subscriptionId, listener.bind(thisArgs));
+    this.#didCliChangeSubscriptions.set(
+      subscriptionId,
+      listener.bind(thisArgs)
+    );
 
     const disposable = new Disposable(() => {
-      log.info("Disposing of subscription", subscriptionId);
-      this.#subscriptions.delete(subscriptionId);
+      log.info("Disposing of onDidCliChange subscription", subscriptionId);
+      this.#didCliChangeSubscriptions.delete(subscriptionId);
+    });
+    if (disposables) {
+      disposables?.push(disposable);
+    }
+    return disposable;
+  }
+
+  async parseDocument(document: TextDocument) {
+    let cliOutput: CliOutput;
+    try {
+      cliOutput = {
+        ok: true,
+        ...(await this.cli.run([
+          "--format",
+          "yaml",
+          "--items",
+          "--map",
+          "--tasks",
+          document.uri.fsPath,
+        ])),
+      };
+    } catch (error) {
+      cliOutput = {
+        ok: false,
+        ...(error as { stdout: string; stderr: string }),
+      };
+      log.error(error);
+    }
+    for (const subscription of this.#didParseDocumentSubscriptions.values()) {
+      subscription({ document, ...cliOutput });
+    }
+  }
+
+  onDidParseDocument(
+    listener: (e: DocumentParsedEvent) => void,
+    thisArgs?: any,
+    disposables?: Disposable[]
+  ) {
+    const subscriptionId: number = this.#nextSubscriptionId++;
+    this.#didParseDocumentSubscriptions.set(
+      subscriptionId,
+      listener.bind(thisArgs)
+    );
+
+    const disposable = new Disposable(() => {
+      log.info("Disposing of onDidParseDocument subscription", subscriptionId);
+      this.#didParseDocumentSubscriptions.delete(subscriptionId);
     });
     if (disposables) {
       disposables?.push(disposable);

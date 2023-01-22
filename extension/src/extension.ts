@@ -2,7 +2,7 @@ import { commands } from "vscode";
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
-import { deleteDiagnostics, updateDiagnostics } from "./diagnostics";
+import { Diagnostics } from "./diagnostics";
 import {
   onDidChangeRelevantTextDocument,
   onDidCloseRelevantTextDocument,
@@ -14,6 +14,7 @@ import { Status } from "./status";
 
 export async function activate() {
   const ifm: IfmAdapter = await IfmAdapter.newInstance();
+  const diagnostics: Diagnostics = new Diagnostics(ifm);
   const status: Status = new Status(ifm);
   await status.refresh();
 
@@ -21,27 +22,19 @@ export async function activate() {
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
   onDidInitiallyFindRelevantTextDocument(async (document) => {
-    await updateDiagnostics(
-      document,
-      ifm,
-      "onDidInitiallyFindRelevantTextDocument"
-    );
+    await ifm.parseDocument(document);
   });
 
-  onDidChangeRelevantTextDocument(async (textDocument) => {
-    await updateDiagnostics(
-      textDocument,
-      ifm,
-      "onDidChangeRelevantTextDocument"
-    );
+  onDidChangeRelevantTextDocument(async (document) => {
+    await ifm.parseDocument(document);
   });
 
   onDidOpenRelevantTextDocument(async (document) => {
-    await updateDiagnostics(document, ifm, "onDidOpenRelevantTextDocument");
+    await ifm.parseDocument(document);
   });
 
   onDidCloseRelevantTextDocument((document) => {
-    deleteDiagnostics(document);
+    diagnostics.delete(document);
     log.debug("Diagnostics deleted");
   });
 

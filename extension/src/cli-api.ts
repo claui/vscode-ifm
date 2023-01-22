@@ -1,4 +1,8 @@
-import { Event } from "vscode";
+import { Event, TextDocument } from "vscode";
+
+export type CliOutput = { ok: boolean; stdout: string; stderr: string };
+
+export type DocumentParsedEvent = { document: TextDocument } & CliOutput;
 
 /**
  * Internal API to be consumed by clients of the CLI.
@@ -13,11 +17,13 @@ import { Event } from "vscode";
 export interface Ifm {
   readonly cli: IfmCli;
 
-  onDidCliChange: Event<void>
+  onDidCliChange: Event<void>;
+
+  onDidParseDocument: Event<DocumentParsedEvent>;
 }
 
 export interface IfmCli {
-  get version(): Promise<string>
+  get version(): Promise<string>;
 
-  run(argv: string[]): Promise<Buffer | string>;
+  run(argv: string[]): Promise<{ stdout: string; stderr: string }>;
 }
