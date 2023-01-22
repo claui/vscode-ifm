@@ -12,7 +12,7 @@ import {
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
-import { excludeUriSchemes, filterEvent, ignoreIfAlreadyClosed, throttleEvent } from "./events";
+import { excludeUriSchemes, streamEvents, ignoreIfAlreadyClosed, throttleEvent } from "./events";
 import log from "./log";
 import { Status } from "./status";
 
@@ -67,11 +67,11 @@ export async function activate() {
   };
 
   const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
-    filterEvent(onDidInitiallyFindTextDocument)
+    streamEvents(onDidInitiallyFindTextDocument)
       .through(excludeIrrelevantTextDocuments)
       .commit();
 
-  const onDidChangeRelevantTextDocument: Event<TextDocument> = filterEvent(
+  const onDidChangeRelevantTextDocument: Event<TextDocument> = streamEvents(
     workspace.onDidChangeTextDocument
   )
     .through(excludeIrrelevantTextDocumentChangeEvents)
@@ -79,13 +79,13 @@ export async function activate() {
     .through(ignoreIfAlreadyClosed)
     .commit();
 
-  const onDidOpenRelevantTextDocument: Event<TextDocument> = filterEvent(
+  const onDidOpenRelevantTextDocument: Event<TextDocument> = streamEvents(
     workspace.onDidOpenTextDocument
   )
     .through(excludeIrrelevantTextDocuments)
     .commit();
 
-  const onDidCloseRelevantTextDocument: Event<TextDocument> = filterEvent(
+  const onDidCloseRelevantTextDocument: Event<TextDocument> = streamEvents(
     workspace.onDidCloseTextDocument
   )
     .through(excludeIrrelevantTextDocuments)
