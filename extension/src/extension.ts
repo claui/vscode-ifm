@@ -12,7 +12,7 @@ import {
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
-import { EventFilterByScheme, throttleEvent } from "./events";
+import { excludeUriSchemes, filterEvent, throttleEvent } from "./events";
 import log from "./log";
 import { Status } from "./status";
 
@@ -35,16 +35,71 @@ export async function activate() {
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
   const schemesToExclude: string[] = ["git", "gitfs", "output"];
-  const eventFilter = new EventFilterByScheme(schemesToExclude);
 
-  const onDidChangeRelevantTextDocument: Event<TextDocument> = throttleEvent(
-    1000,
-    (e: TextDocumentChangeEvent) => e.document,
-    eventFilter.filter(
-      (event) => event.document.uri,
-      workspace.onDidChangeTextDocument
-    )
-  );
+  function excludeIrrelevantTextDocuments(
+    e: Event<TextDocument>
+  ): Event<TextDocument> {
+    return excludeUriSchemes(
+      schemesToExclude,
+      (document: TextDocument) => document.uri,
+      e
+    );
+  }
+
+  function excludeIrrelevantTextDocumentChangeEvents(
+    e: Event<TextDocumentChangeEvent>
+  ): Event<TextDocumentChangeEvent> {
+    return excludeUriSchemes(
+      schemesToExclude,
+      (e: TextDocumentChangeEvent) => e.document.uri,
+      e
+    );
+  }
+
+  const onDidInitiallyFindTextDocument: Event<TextDocument> = (
+    listener: (e: TextDocument) => any,
+    thisArgs?: any
+  ): Disposable => {
+    for (const document of workspace.textDocuments) {
+      listener.call(thisArgs, document);
+    }
+    return Disposable.from();
+  };
+
+  const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
+    filterEvent(onDidInitiallyFindTextDocument)
+      .through(excludeIrrelevantTextDocuments)
+      .commit();
+
+  const onDidChangeRelevantTextDocument: Event<TextDocument> = filterEvent(
+    workspace.onDidChangeTextDocument
+  )
+    .through(excludeIrrelevantTextDocumentChangeEvents)
+    .through(throttleEvent, 1000, (e: TextDocumentChangeEvent) => e.document)
+    .commit();
+
+  const onDidOpenRelevantTextDocument: Event<TextDocument> = filterEvent(
+    workspace.onDidOpenTextDocument
+  )
+    .through(excludeIrrelevantTextDocuments)
+    .commit();
+
+  const onDidCloseRelevantTextDocument: Event<TextDocument> = filterEvent(
+    workspace.onDidCloseTextDocument
+  )
+    .through(excludeIrrelevantTextDocuments)
+    .commit();
+
+  onDidInitiallyFindRelevantTextDocument((document) => {
+    if (diagnosticsByUri.has(document.uri.toString())) {
+      return;
+    }
+    const diagnostics: DiagnosticCollection =
+      languages.createDiagnosticCollection(document.uri.toString());
+    diagnosticsByUri.set(document.uri.toString(), diagnostics);
+    updateDiagnostics(document.uri, diagnostics, "initial state of workspace");
+  });
+
   onDidChangeRelevantTextDocument((textDocument) => {
     const uri: Uri = textDocument.uri;
     const diagnostics: DiagnosticCollection | undefined = diagnosticsByUri.get(
@@ -60,10 +115,6 @@ export async function activate() {
     updateDiagnostics(uri, diagnostics, "onDidChangeTextDocument");
   });
 
-  const onDidOpenRelevantTextDocument: Event<TextDocument> = eventFilter.filter(
-    (document) => document.uri,
-    workspace.onDidOpenTextDocument
-  );
   onDidOpenRelevantTextDocument((document) => {
     if (diagnosticsByUri.has(document.uri.toString())) {
       log.warn("Found orphaned DiagnosticCollection:", document.uri.toString());
@@ -76,11 +127,6 @@ export async function activate() {
     updateDiagnostics(document.uri, diagnostics, "onDidOpenTextDocument");
   });
 
-  const onDidCloseRelevantTextDocument: Event<TextDocument> =
-    eventFilter.filter(
-      (document) => document.uri,
-      workspace.onDidCloseTextDocument
-    );
   onDidCloseRelevantTextDocument((document) => {
     if (!diagnosticsByUri.has(document.uri.toString())) {
       log.warn("Missing DiagnosticCollection:", document.uri.toString());
@@ -88,30 +134,6 @@ export async function activate() {
     }
     diagnosticsByUri.delete(document.uri.toString());
     log.debug("Diagnostics deleted");
-  });
-
-  const onDidInitiallyFindTextDocument: Event<TextDocument> = (
-    listener: (e: TextDocument) => any,
-    thisArgs?: any
-  ): Disposable => {
-    for (const document of workspace.textDocuments) {
-      listener.call(thisArgs, document);
-    }
-    return Disposable.from();
-  };
-  const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
-    eventFilter.filter(
-      (document) => document.uri,
-      onDidInitiallyFindTextDocument
-    );
-  onDidInitiallyFindRelevantTextDocument((document) => {
-    if (diagnosticsByUri.has(document.uri.toString())) {
-      return;
-    }
-    const diagnostics: DiagnosticCollection =
-      languages.createDiagnosticCollection(document.uri.toString());
-    diagnosticsByUri.set(document.uri.toString(), diagnostics);
-    updateDiagnostics(document.uri, diagnostics, "initial state of workspace");
   });
 
   return { ifm } as { ifm: Ifm };
