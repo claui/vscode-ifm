@@ -12,7 +12,7 @@ import {
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
-import { excludeUriSchemes, filterEvent, throttleEvent } from "./events";
+import { excludeUriSchemes, filterEvent, ignoreIfAlreadyClosed, throttleEvent } from "./events";
 import log from "./log";
 import { Status } from "./status";
 
@@ -76,6 +76,7 @@ export async function activate() {
   )
     .through(excludeIrrelevantTextDocumentChangeEvents)
     .through(throttleEvent, 1000, (e: TextDocumentChangeEvent) => e.document)
+    .through(ignoreIfAlreadyClosed)
     .commit();
 
   const onDidOpenRelevantTextDocument: Event<TextDocument> = filterEvent(

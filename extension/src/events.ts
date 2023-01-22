@@ -1,4 +1,4 @@
-import { Event, Uri, Disposable } from "vscode";
+import { Event, Uri, Disposable, TextDocument } from "vscode";
 
 import { throttle } from "throttle-debounce";
 
@@ -77,6 +77,24 @@ export function excludeUriSchemes<T>(
         return;
       }
       return listener.call(listenerThisArgs, e);
+    };
+    return upstreamEvent(upstreamListener, this, disposables);
+  };
+}
+
+export function ignoreIfAlreadyClosed(
+  upstreamEvent: Event<TextDocument>
+): Event<TextDocument> {
+  return (
+    listener: (document: TextDocument) => any,
+    listenerThisArgs?: any,
+    disposables?: Disposable[]
+  ): Disposable => {
+    const upstreamListener: (document: TextDocument) => any = (document) => {
+      if (document.isClosed) {
+        return;
+      }
+      return listener.call(listenerThisArgs, document);
     };
     return upstreamEvent(upstreamListener, this, disposables);
   };
