@@ -1,18 +1,45 @@
 import {
   Disposable,
+  DocumentSelector,
   Event,
+  languages,
   TextDocument,
   TextDocumentChangeEvent,
   workspace,
 } from "vscode";
 
-import { excludeUriSchemes, ignoreIfAlreadyClosed } from "./events/filters";
+import {
+  excludeUriSchemes,
+  ignoreIfAlreadyClosed,
+  select,
+} from "./events/filters";
 import { streamEvents } from "./events/stream";
 import { throttleEvent } from "./events/throttle";
 
 const schemesToExclude: string[] = ["git", "gitfs", "output", "vscode"];
+const ifmLanguageSelector: DocumentSelector = { language: "ifm" };
 
-function excludeIrrelevantTextDocuments(
+function excludeIrrelevantTextDocumentsByLanguage(
+  event: Event<TextDocument>
+): Event<TextDocument> {
+  return select(
+    (document: TextDocument) =>
+      !!languages.match(ifmLanguageSelector, document),
+    event
+  );
+}
+
+function excludeIrrelevantChangeEventsByLanguage(
+  event: Event<TextDocumentChangeEvent>
+): Event<TextDocumentChangeEvent> {
+  return select(
+    (e: TextDocumentChangeEvent) =>
+      !!languages.match(ifmLanguageSelector, e.document),
+    event
+  );
+}
+
+function excludeIrrelevantTextDocumentsByScheme(
   event: Event<TextDocument>
 ): Event<TextDocument> {
   return excludeUriSchemes(
@@ -22,7 +49,7 @@ function excludeIrrelevantTextDocuments(
   );
 }
 
-function excludeIrrelevantTextDocumentChangeEvents(
+function excludeIrrelevantChangeEventsByScheme(
   event: Event<TextDocumentChangeEvent>
 ): Event<TextDocumentChangeEvent> {
   return excludeUriSchemes(
@@ -44,12 +71,14 @@ const onDidInitiallyFindTextDocument: Event<TextDocument> = (
 
 export const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
   streamEvents(onDidInitiallyFindTextDocument)
-    .through(excludeIrrelevantTextDocuments)
+    .through(excludeIrrelevantTextDocumentsByScheme)
+    .through(excludeIrrelevantTextDocumentsByLanguage)
     .commit();
 
 export const onDidChangeRelevantTextDocument: Event<TextDocument> =
   streamEvents(workspace.onDidChangeTextDocument)
-    .through(excludeIrrelevantTextDocumentChangeEvents)
+    .through(excludeIrrelevantChangeEventsByScheme)
+    .through(excludeIrrelevantChangeEventsByLanguage)
     .through(throttleEvent, 1000, (e: TextDocumentChangeEvent) => e.document)
     .through(ignoreIfAlreadyClosed)
     .commit();
@@ -57,11 +86,13 @@ export const onDidChangeRelevantTextDocument: Event<TextDocument> =
 export const onDidOpenRelevantTextDocument: Event<TextDocument> = streamEvents(
   workspace.onDidOpenTextDocument
 )
-  .through(excludeIrrelevantTextDocuments)
+  .through(excludeIrrelevantTextDocumentsByScheme)
+  .through(excludeIrrelevantTextDocumentsByLanguage)
   .commit();
 
 export const onDidCloseRelevantTextDocument: Event<TextDocument> = streamEvents(
   workspace.onDidCloseTextDocument
 )
-  .through(excludeIrrelevantTextDocuments)
+  .through(excludeIrrelevantTextDocumentsByScheme)
+  .through(excludeIrrelevantTextDocumentsByLanguage)
   .commit();

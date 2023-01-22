@@ -6,39 +6,29 @@ export function excludeUriSchemes<T>(
   upstreamEvent: Event<T>
 ): Event<T> {
   const schemesToExcludeArray: String[] = Array.from(schemesToExclude);
-
   function isSchemeRelevant(uri: Uri): boolean {
     return !schemesToExcludeArray.includes(uri.scheme);
   }
+  return select((e: T) => isSchemeRelevant(extractUri(e)), upstreamEvent);
+}
 
+export function ignoreIfAlreadyClosed(
+  upstreamEvent: Event<TextDocument>
+): Event<TextDocument> {
+  return select((document: TextDocument) => !document.isClosed, upstreamEvent);
+}
+
+export function select<T>(
+  match: (e: T) => boolean,
+  upstreamEvent: Event<T>
+): Event<T> {
   return (
     listener: (e: T) => any,
     listenerThisArgs?: any,
     disposables?: Disposable[]
   ): Disposable => {
     const upstreamListener: (e: T) => any = (e) => {
-      if (!isSchemeRelevant(extractUri(e))) {
-        return;
-      }
-      return listener.call(listenerThisArgs, e);
-    };
-    return upstreamEvent(upstreamListener, this, disposables);
-  };
-}
-
-export function ignoreIfAlreadyClosed(
-  upstreamEvent: Event<TextDocument>
-): Event<TextDocument> {
-  return (
-    listener: (document: TextDocument) => any,
-    listenerThisArgs?: any,
-    disposables?: Disposable[]
-  ): Disposable => {
-    const upstreamListener: (document: TextDocument) => any = (document) => {
-      if (document.isClosed) {
-        return;
-      }
-      return listener.call(listenerThisArgs, document);
+      return match(e) ? listener.call(listenerThisArgs, e) : undefined;
     };
     return upstreamEvent(upstreamListener, this, disposables);
   };
