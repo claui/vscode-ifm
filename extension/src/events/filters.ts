@@ -1,4 +1,55 @@
-import { Disposable, Event, TextDocument, Uri } from "vscode";
+import {
+  Disposable,
+  DocumentSelector,
+  Event,
+  languages,
+  TextDocument,
+  TextDocumentChangeEvent,
+  Uri,
+} from "vscode";
+
+const schemesToExclude: string[] = ["git", "gitfs", "output", "vscode"];
+const ifmLanguageSelector: DocumentSelector = { language: "ifm" };
+
+export function excludeIrrelevantChangeEventsByLanguage(
+  event: Event<TextDocumentChangeEvent>
+): Event<TextDocumentChangeEvent> {
+  return select(
+    (e: TextDocumentChangeEvent) =>
+      !!languages.match(ifmLanguageSelector, e.document),
+    event
+  );
+}
+
+export function excludeIrrelevantTextDocumentsByLanguage(
+  event: Event<TextDocument>
+): Event<TextDocument> {
+  return select(
+    (document: TextDocument) =>
+      !!languages.match(ifmLanguageSelector, document),
+    event
+  );
+}
+
+export function excludeIrrelevantChangeEventsByScheme(
+  event: Event<TextDocumentChangeEvent>
+): Event<TextDocumentChangeEvent> {
+  return excludeUriSchemes(
+    schemesToExclude,
+    (e: TextDocumentChangeEvent) => e.document.uri,
+    event
+  );
+}
+
+export function excludeIrrelevantTextDocumentsByScheme(
+  event: Event<TextDocument>
+): Event<TextDocument> {
+  return excludeUriSchemes(
+    schemesToExclude,
+    (document: TextDocument) => document.uri,
+    event
+  );
+}
 
 export function excludeUriSchemes<T>(
   schemesToExclude: Iterable<String>,
