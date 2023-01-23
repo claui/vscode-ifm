@@ -22,15 +22,15 @@ export async function activate() {
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
   onDidInitiallyFindRelevantTextDocument(async (document) => {
-    await ifm.parseDocument(document);
+    ifm.parseDocument(document);
   });
 
   onDidChangeRelevantTextDocument(async (document) => {
-    await ifm.parseDocument(document);
+    ifm.parseDocument(document);
   });
 
   onDidOpenRelevantTextDocument(async (document) => {
-    await ifm.parseDocument(document);
+    ifm.parseDocument(document);
   });
 
   onDidCloseRelevantTextDocument((document) => {

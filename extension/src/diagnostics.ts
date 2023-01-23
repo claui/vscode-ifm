@@ -20,11 +20,13 @@ export class Diagnostics {
 
   async refresh(event: DocumentParsedEvent) {
     log.info("Refreshing diagnostics", event.document.uri.toString());
+    log.warn("stderr:", event.stderr);
+    log.warn("stderr prototype:", Object.getPrototypeOf(event.stderr));
     const diagnostics: Diagnostic[] = event.stderr
       .split("\n")
       .filter((line) => line.length)
       .map((line) => {
-        const range: Range = new Range(0, 0, 1, 0);
+        const range: Range = new Range(0, 0, 0, 0);
         return new Diagnostic(range, line, DiagnosticSeverity.Warning);
       });
     this.#diagnosticCollection.set(event.document.uri, diagnostics);

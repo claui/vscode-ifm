@@ -26,4 +26,9 @@ export interface IfmCli {
   get version(): Promise<string>;
 
   run(argv: string[]): Promise<{ stdout: string; stderr: string }>;
+
+  runSync(
+    argv: string[],
+    input: string
+  ): { stdout: string; stderr: string; status: number | null; error?: Error };
 }
