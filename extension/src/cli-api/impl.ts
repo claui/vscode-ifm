@@ -1,4 +1,9 @@
-import { execFile } from "child_process";
+import {
+  execFile,
+  spawnSync,
+  SpawnSyncOptionsWithStringEncoding,
+  SpawnSyncReturns,
+} from "child_process";
 import { promisify } from "util";
 
 import { Disposable, TextDocument, workspace } from "vscode";
@@ -51,16 +56,23 @@ async function getCli(): Promise<IfmCli> {
     return executablePathSetting;
   };
 
-  const run = async (argv: string[]) => {
+  async function run(argv: string[]) {
     return execFileAsync(getExecutable(), argv);
-  };
+  }
+
+  function runSync(argv: string[], input: string): SpawnSyncReturns<string> {
+    return spawnSync(getExecutable(), argv, {
+      input,
+      encoding: "utf8",
+    } as SpawnSyncOptionsWithStringEncoding);
+  }
 
   return {
     get version() {
       return getVersion(run);
     },
-
     run,
+    runSync,
   };
 }
 
@@ -115,20 +127,30 @@ export class IfmAdapter implements Ifm {
     return disposable;
   }
 
-  async parseDocument(document: TextDocument) {
+  parseDocument(document: TextDocument) {
+    const cliArgs: string[] = [
+      "--format",
+      "yaml",
+      "--items",
+      "--map",
+      "--tasks",
+    ];
     let cliOutput: CliOutput;
     try {
+      const runSyncResult: {
+        stdout: string;
+        stderr: string;
+        status: number | null;
+        error?: Error;
+      } = this.cli.runSync(cliArgs, document.getText());
       cliOutput = {
-        ok: true,
-        ...(await this.cli.run([
-          "--format",
-          "yaml",
-          "--items",
-          "--map",
-          "--tasks",
-          document.uri.fsPath,
-        ])),
+        ok: runSyncResult.status === 0,
+        ...runSyncResult,
       };
+      if (!cliOutput.ok) {
+        log.error("exit status:", runSyncResult.status);
+        log.error("error:", runSyncResult.error);
+      }
     } catch (error) {
       cliOutput = {
         ok: false,
