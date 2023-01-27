@@ -1,0 +1,43 @@
+Messages {
+    MessageGroup = Message*
+
+    Message = roomMessage | cannotSolveMessage
+
+    roomMessage = roomKeyword space quotedRoomName space trailingPredicate
+
+    cannotSolveHeader = "can't solve game" space "(" reasonSummary ")\n"
+
+    cannotSolveMessage = cannotSolveHeader reasonSections
+
+    nonNewline = ~"\n" any
+
+    predicate = nonNewline*
+
+    quotedRoomName = "'" roomName "'"
+
+    reasonSection = sectionHeader sectionDetail
+
+    reasonSections = reasonSection*
+
+    reasonSummary = (~")" nonNewline)*
+
+    roomKeyword = "room"
+
+    roomName = (~"'" nonNewline)*
+
+    sectionDetail = (sectionIndent sectionIndent textLine)*
+
+    sectionHeader = sectionIndent sectionName ":" "\n"
+
+    sectionIndent = space space space
+
+    sectionName = (~":" nonNewline)+
+
+    stringLiteral = "'" (~"'" nonNewline)* "'"
+
+    textLine = textLineContent "\n"
+
+    textLineContent = nonNewline*
+
+    trailingPredicate = predicate "\n"
+}
