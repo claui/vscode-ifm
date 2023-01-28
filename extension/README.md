@@ -8,6 +8,8 @@ Support for the
 
 - Syntax highlighting
 
+- Problem diagnostics (requires `ifm` to be installed locally)
+
 ## License
 
 Copyright (c) 2023 Claudia Pellegrino
