@@ -1,13 +1,15 @@
 Messages {
     MessageGroup = Message*
 
-    Message = roomMessage | cannotSolveMessage
-
-    roomMessage = roomKeyword space quotedRoomName space trailingPredicate
+    Message = roomMessage | roomsMessage | cannotSolveMessage
 
     cannotSolveHeader = "can't solve game" space "(" reasonSummary ")\n"
 
-    cannotSolveMessage = cannotSolveHeader reasonSections
+    cannotSolveMessage = cannotSolveHeader detailSections
+
+    detailSection = sectionHeader sectionDescription
+
+    detailSections = detailSection*
 
     nonNewline = ~"\n" any
 
@@ -15,23 +17,27 @@ Messages {
 
     quotedRoomName = "'" roomName "'"
 
-    reasonSection = sectionHeader sectionDetail
-
-    reasonSections = reasonSection*
+    quotedRoomNames = (" and "? quotedRoomName)*
 
     reasonSummary = (~")" nonNewline)*
 
     roomKeyword = "room"
 
+    roomMessage = roomKeyword space quotedRoomName space trailingPredicate
+
     roomName = (~"'" nonNewline)*
 
-    sectionDetail = (sectionIndent sectionIndent textLine)*
+    roomsKeyword = "rooms"
 
-    sectionHeader = sectionIndent sectionName ":" "\n"
+    roomsMessage = roomsKeyword space quotedRoomNames space trailingPredicate
+
+    sectionDescription = (sectionIndent sectionIndent textLine)*
+
+    sectionHeader = sectionIndent sectionTitle ":" "\n"
 
     sectionIndent = space space space
 
-    sectionName = (~":" nonNewline)+
+    sectionTitle = (~":" nonNewline)+
 
     stringLiteral = "'" (~"'" nonNewline)* "'"
 

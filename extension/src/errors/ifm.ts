@@ -1,6 +1,8 @@
 import {
   Diagnostic,
+  DiagnosticRelatedInformation,
   DiagnosticSeverity,
+  Location,
   Range,
   TextDocument,
 } from "vscode";
@@ -19,28 +21,59 @@ function* searchSubstring(haystack: string, needle: string) {
 }
 
 function mapRoomMessage(message: RoomMessage, document: TextDocument) {
-  const subjectText = `"${message.room.name}"`;
-  const ranges: Range[] = [
-    ...searchSubstring(document.getText(), subjectText),
-  ].map(
-    (offset) =>
-      new Range(
-        document.positionAt(offset),
-        document.positionAt(offset + subjectText.length)
-      )
-  );
-  const primaryRange: Range = ranges.length ? ranges[0] : new Range(0, 0, 0, 0);
+  if (!message.rooms.length) {
+    throw new Error(`Invalid RoomMessage: ${JSON.stringify(message)}`);
+  }
+  const documentText: string = document.getText();
+
+  function primaryRange(room: Room): Range {
+    const roomText = `"${room.name}"`;
+    const ranges: Range[] = [...searchSubstring(documentText, roomText)].map(
+      (offset) =>
+        new Range(
+          document.positionAt(offset),
+          document.positionAt(offset + roomText.length)
+        )
+    );
+    return ranges.length ? ranges[0] : new Range(0, 0, 0, 0);
+  }
+
   const diagnostic = new Diagnostic(
-    primaryRange,
-    message.fullText,
+    primaryRange(message.rooms[0]),
+    message.description,
     DiagnosticSeverity.Warning
   );
+  if (message.rooms.length > 1) {
+    diagnostic.relatedInformation = message.rooms.map((room) => {
+      return new DiagnosticRelatedInformation(
+        new Location(document.uri, primaryRange(room)),
+        room.name
+      );
+    });
+  }
   diagnostic.source = "ifm";
   return diagnostic;
 }
 
-function mapCannotSolveMessage(message: CannotSolveMessage) {
-  return new Diagnostic(new Range(0, 0, 0, 0), message.fullText);
+function mapCannotSolveMessage(
+  message: CannotSolveMessage,
+  document: TextDocument
+) {
+  const pseudoRange = new Range(0, 0, 0, 0);
+  const diagnostic = new Diagnostic(
+    pseudoRange,
+    message.description,
+    DiagnosticSeverity.Error
+  );
+  diagnostic.relatedInformation = message.details.map(
+    (detail) =>
+      new DiagnosticRelatedInformation(
+        new Location(document.uri, pseudoRange),
+        `${detail.title}: ${detail.description}`
+      )
+  );
+  diagnostic.source = "ifm";
+  return diagnostic;
 }
 
 function getDiagnosticMapper(kind: Message["kind"]): DiagnosticMapper {
@@ -56,7 +89,7 @@ function getDiagnosticMapper(kind: Message["kind"]): DiagnosticMapper {
 }
 
 interface BaseMessage {
-  readonly fullText: string;
+  readonly description: string;
 }
 
 export type Room = {
@@ -65,13 +98,19 @@ export type Room = {
 
 export interface RoomMessage extends BaseMessage {
   readonly kind: "room";
-  readonly room: Room;
+  readonly rooms: Room[];
   readonly predicate: string;
+}
+
+export interface CannotSolveDetail {
+  readonly title: string;
+  readonly description: string;
 }
 
 export interface CannotSolveMessage extends BaseMessage {
   readonly kind: "cannot solve";
-  readonly foo: string;
+  readonly reasonSummary: string;
+  readonly details: CannotSolveDetail[];
 }
 
 export type Message = RoomMessage | CannotSolveMessage;
