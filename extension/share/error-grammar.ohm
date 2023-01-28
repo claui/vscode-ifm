@@ -1,7 +1,7 @@
 Messages {
     MessageGroup = Message*
 
-    Message = roomMessage | roomsMessage | cannotSolveMessage
+    Message = lineMessage | roomMessage | roomsMessage | cannotSolveMessage
 
     cannotSolveHeader = "can't solve game" space "(" reasonSummary ")\n"
 
@@ -10,6 +10,14 @@ Messages {
     detailSection = sectionHeader sectionDescription
 
     detailSections = detailSection*
+
+    fileName = (~"," nonNewline)+
+
+    lineKeyword = "line"
+
+    lineMessage = fileName ", " lineKeyword space lineNumber ": " trailingPredicate
+
+    lineNumber = digit+
 
     nonNewline = ~"\n" any
 
@@ -25,7 +33,7 @@ Messages {
 
     roomMessage = roomKeyword space quotedRoomName space trailingPredicate
 
-    roomName = (~"'" nonNewline)*
+    roomName = (~"' " nonNewline)*
 
     roomsKeyword = "rooms"
 

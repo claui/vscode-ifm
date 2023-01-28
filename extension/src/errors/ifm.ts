@@ -20,6 +20,15 @@ function* searchSubstring(haystack: string, needle: string) {
   }
 }
 
+function mapLineMessage(message: LineMessage, document: TextDocument) {
+  const diagnostic = new Diagnostic(
+    document.lineAt(message.lineNumber - 1).range,
+    message.predicate,
+    DiagnosticSeverity.Error
+  );
+  return diagnostic;
+}
+
 function mapRoomMessage(message: RoomMessage, document: TextDocument) {
   if (!message.rooms.length) {
     throw new Error(`Invalid RoomMessage: ${JSON.stringify(message)}`);
@@ -78,6 +87,8 @@ function mapCannotSolveMessage(
 
 function getDiagnosticMapper(kind: Message["kind"]): DiagnosticMapper {
   switch (kind) {
+    case "line":
+      return mapLineMessage;
     case "room":
       return mapRoomMessage;
     case "cannot solve":
@@ -90,6 +101,12 @@ function getDiagnosticMapper(kind: Message["kind"]): DiagnosticMapper {
 
 interface BaseMessage {
   readonly description: string;
+}
+
+export interface LineMessage extends BaseMessage {
+  readonly kind: "line";
+  readonly lineNumber: number;
+  readonly predicate: string;
 }
 
 export type Room = {
@@ -113,7 +130,7 @@ export interface CannotSolveMessage extends BaseMessage {
   readonly details: CannotSolveDetail[];
 }
 
-export type Message = RoomMessage | CannotSolveMessage;
+export type Message = LineMessage | RoomMessage | CannotSolveMessage;
 
 export function toDiagnostic(
   message: Message,
