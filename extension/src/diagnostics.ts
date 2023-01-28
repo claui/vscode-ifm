@@ -8,6 +8,7 @@ import {
 import { DocumentParsedEvent, Ifm } from "./cli-api";
 import { grammar, semantics } from "./error-grammar";
 import * as ifm from "./errors/ifm";
+import { toDiagnostic } from "./errors/mappers";
 import log from "./log";
 
 export class Diagnostics {
@@ -28,7 +29,7 @@ export class Diagnostics {
     const ifmMessages: ifm.Message[] =
       semantics(matchResult).parseMessageGroup();
     const diagnostics: Diagnostic[] = ifmMessages.map((message) =>
-      ifm.toDiagnostic(message, event.document)
+      toDiagnostic(message, event.document)
     );
     this.#diagnosticCollection.set(event.document.uri, diagnostics);
   }
