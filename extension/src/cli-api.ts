@@ -29,6 +29,7 @@ export interface IfmCli {
 
   runSync(
     argv: string[],
-    input: string
+    input: string,
+    timeout: string | number
   ): { stdout: string; stderr: string; status: number | null; error?: Error };
 }

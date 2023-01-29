@@ -9,6 +9,7 @@ import { promisify } from "util";
 import { Disposable, TextDocument, workspace } from "vscode";
 
 import { CliOutput, DocumentParsedEvent, Ifm, IfmCli } from "../cli-api";
+import { MAX_RUNTIME_MILLIS } from "../constants";
 import CliFailedError from "../errors";
 import log from "../log";
 
@@ -60,9 +61,14 @@ async function getCli(): Promise<IfmCli> {
     return execFileAsync(getExecutable(), argv);
   }
 
-  function runSync(argv: string[], input: string): SpawnSyncReturns<string> {
+  function runSync(
+    argv: string[],
+    input: string,
+    timeout: string | number
+  ): SpawnSyncReturns<string> {
     return spawnSync(getExecutable(), argv, {
       input,
+      timeout,
       encoding: "utf8",
     } as SpawnSyncOptionsWithStringEncoding);
   }
@@ -82,16 +88,18 @@ export class IfmAdapter implements Ifm {
     number,
     (e: DocumentParsedEvent) => void
   > = new Map();
+  #maxRuntimeMillis: string | number;
   #nextSubscriptionId = 0;
   cli: IfmCli;
 
   static async newInstance(): Promise<IfmAdapter> {
     const cli: IfmCli = await getCli();
-    return new IfmAdapter(cli);
+    return new IfmAdapter(cli, MAX_RUNTIME_MILLIS);
   }
 
-  constructor(cli: IfmCli) {
+  constructor(cli: IfmCli, maxRuntimeMillis: string | number) {
     this.cli = cli;
+    this.#maxRuntimeMillis = maxRuntimeMillis;
     workspace.onDidChangeConfiguration(async (event) => {
       if (event.affectsConfiguration("ifm")) {
         this.refreshCli();
@@ -142,7 +150,7 @@ export class IfmAdapter implements Ifm {
         stderr: string;
         status: number | null;
         error?: Error;
-      } = this.cli.runSync(cliArgs, document.getText());
+      } = this.cli.runSync(cliArgs, document.getText(), this.#maxRuntimeMillis);
       cliOutput = {
         ok: runSyncResult.status === 0,
         ...runSyncResult,
