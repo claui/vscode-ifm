@@ -1,0 +1,2 @@
+export const MAX_RUNTIME_MILLIS = 500;
+export const CHANGE_EVENT_THROTTLE_MILLIS: number = 2 * MAX_RUNTIME_MILLIS;

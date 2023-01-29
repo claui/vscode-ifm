@@ -5,6 +5,7 @@ import {
   TextDocumentChangeEvent,
   workspace,
 } from "vscode";
+import { CHANGE_EVENT_THROTTLE_MILLIS } from "./constants";
 
 import {
   excludeIrrelevantChangeEventsByLanguage,
@@ -36,7 +37,11 @@ export const onDidChangeRelevantTextDocument: Event<TextDocument> =
   streamEvents(workspace.onDidChangeTextDocument)
     .through(excludeIrrelevantChangeEventsByScheme)
     .through(excludeIrrelevantChangeEventsByLanguage)
-    .through(throttleEvent, 1000, (e: TextDocumentChangeEvent) => e.document)
+    .through(
+      throttleEvent,
+      CHANGE_EVENT_THROTTLE_MILLIS,
+      (e: TextDocumentChangeEvent) => e.document
+    )
     .through(ignoreIfAlreadyClosed)
     .commit();
 
