@@ -30,8 +30,7 @@ const onDidInitiallyFindTextDocument: Event<TextDocument> = (
 export const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
   streamEvents(onDidInitiallyFindTextDocument)
     .through(excludeIrrelevantTextDocumentsByScheme)
-    .through(excludeIrrelevantTextDocumentsByLanguage)
-    .commit();
+    .through(excludeIrrelevantTextDocumentsByLanguage);
 
 export const onDidChangeRelevantTextDocument: Event<TextDocument> =
   streamEvents(workspace.onDidChangeTextDocument)
@@ -42,17 +41,14 @@ export const onDidChangeRelevantTextDocument: Event<TextDocument> =
       CHANGE_EVENT_THROTTLE_MILLIS,
       (e: TextDocumentChangeEvent) => e.document,
     )
-    .through(ignoreIfAlreadyClosed)
-    .commit();
+    .through(ignoreIfAlreadyClosed);
 
 export const onDidOpenRelevantTextDocument: Event<TextDocument> =
   streamEvents(workspace.onDidOpenTextDocument)
     .through(excludeIrrelevantTextDocumentsByScheme)
-    .through(excludeIrrelevantTextDocumentsByLanguage)
-    .commit();
+    .through(excludeIrrelevantTextDocumentsByLanguage);
 
 export const onDidCloseRelevantTextDocument: Event<TextDocument> =
   streamEvents(workspace.onDidCloseTextDocument)
     .through(excludeIrrelevantTextDocumentsByScheme)
-    .through(excludeIrrelevantTextDocumentsByLanguage)
-    .commit();
+    .through(excludeIrrelevantTextDocumentsByLanguage);
