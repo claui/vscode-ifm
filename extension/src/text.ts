@@ -5,7 +5,7 @@ export function capitalizeString(predicate: string): string {
   return "";
 }
 
-export function* searchSubstring(haystack: string, needle: string) {
+export function *searchSubstring(haystack: string, needle: string) {
   let index: number = haystack.indexOf(needle);
   while (index >= 0) {
     yield index;

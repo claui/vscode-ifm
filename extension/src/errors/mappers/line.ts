@@ -5,7 +5,7 @@ export function mapLineMessage(message: LineMessage, document: TextDocument) {
   const diagnostic = new Diagnostic(
     document.lineAt(message.lineNumber - 1).range,
     message.predicate,
-    DiagnosticSeverity.Error
+    DiagnosticSeverity.Error,
   );
   return diagnostic;
 }

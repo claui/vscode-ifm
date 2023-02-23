@@ -13,7 +13,7 @@ import log from "./log";
 import { Status } from "./status";
 
 export async function activate() {
-  const ifm: IfmAdapter = await IfmAdapter.newInstance();
+  const ifm: IfmAdapter = IfmAdapter.newInstance();
   const diagnostics: Diagnostics = new Diagnostics(ifm);
   const status: Status = new Status(ifm);
   await status.refresh();
@@ -21,24 +21,26 @@ export async function activate() {
   commands.registerCommand("ifm.action.refresh", ifm.refreshCli, ifm);
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
-  onDidInitiallyFindRelevantTextDocument(async (document) => {
+  onDidInitiallyFindRelevantTextDocument((document) => {
     ifm.parseDocument(document);
   });
 
-  onDidChangeRelevantTextDocument(async (document) => {
+  onDidChangeRelevantTextDocument((document) => {
     ifm.parseDocument(document);
   });
 
-  onDidOpenRelevantTextDocument(async (document) => {
+  onDidOpenRelevantTextDocument((document) => {
     ifm.parseDocument(document);
   });
 
   onDidCloseRelevantTextDocument((document) => {
-    diagnostics.delete(document);
+    diagnostics["delete"](document);
     log.debug("Diagnostics deleted");
   });
 
   return { ifm } as { ifm: Ifm };
 }
 
-export function deactivate() {}
+export function deactivate() {
+  return;
+}

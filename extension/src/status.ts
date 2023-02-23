@@ -20,7 +20,7 @@ export class Status {
     this.ifm = ifm;
     this.statusItem = languages.createLanguageStatusItem(
       "ifm.status.item.version",
-      languageSelector
+      languageSelector,
     );
     this.statusItem.command = {
       command: "ifm.action.showLog",

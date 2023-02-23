@@ -14,39 +14,39 @@ import CliFailedError from "../errors";
 import log from "../log";
 
 const MAX_LENGTH = 256;
-const VERSION_PATTERN = /IFM version (.*)/;
+const VERSION_PATTERN = /IFM version (?<version>.*)/;
 
 const execFileAsync = promisify(execFile);
 
 async function getVersion(
-  cliRun: (argv: string[]) => Promise<{ stdout: string; stderr: string }>
+  cliRun: (argv: string[]) => Promise<{ stdout: string; stderr: string }>,
 ): Promise<string> {
   let stdout: string;
   try {
-    stdout = (await cliRun(["--version"])).stdout;
+    ({stdout} = await cliRun(["--version"]));
   } catch (error) {
     throw new CliFailedError("Unable to obtain IFM CLI version", {
       cause: error,
     });
   }
 
-  const matchingGroups = VERSION_PATTERN.exec(stdout);
-  if (!matchingGroups || matchingGroups.length != 2) {
+  const matchResult: RegExpExecArray | null = VERSION_PATTERN.exec(stdout);
+  if (!matchResult) {
     throw new CliFailedError(
-      `No version number found in IFM output: ${stdout}`
+      `No version number found in IFM output: ${stdout}`,
     );
   }
-  const versionString = matchingGroups[1];
+  const versionString: string = matchResult.groups!.version;
   if (versionString.length > MAX_LENGTH) {
     throw new CliFailedError(
-      `Excessive length: ${versionString.substring(0, MAX_LENGTH)}[…]`
+      `Excessive length: ${versionString.substring(0, MAX_LENGTH)}[…]`,
     );
   }
   return versionString.trim();
 }
 
-async function getCli(): Promise<IfmCli> {
-  const getExecutable = (): string => {
+function getCli(): IfmCli {
+  function getExecutable(): string {
     const executablePathSetting: string | undefined = workspace
       .getConfiguration("ifm")
       .get("executablePath");
@@ -55,16 +55,16 @@ async function getCli(): Promise<IfmCli> {
       return "ifm";
     }
     return executablePathSetting;
-  };
+  }
 
-  async function run(argv: string[]) {
+  function run(argv: string[]) {
     return execFileAsync(getExecutable(), argv);
   }
 
   function runSync(
     argv: string[],
     input: string,
-    timeout: string | number
+    timeout: string | number,
   ): SpawnSyncReturns<string> {
     return spawnSync(getExecutable(), argv, {
       input,
@@ -88,27 +88,28 @@ export class IfmAdapter implements Ifm {
     number,
     (e: DocumentParsedEvent) => void
   > = new Map();
+
   #maxRuntimeMillis: string | number;
   #nextSubscriptionId = 0;
   cli: IfmCli;
 
-  static async newInstance(): Promise<IfmAdapter> {
-    const cli: IfmCli = await getCli();
+  static newInstance(): IfmAdapter {
+    const cli: IfmCli = getCli();
     return new IfmAdapter(cli, MAX_RUNTIME_MILLIS);
   }
 
   constructor(cli: IfmCli, maxRuntimeMillis: string | number) {
     this.cli = cli;
     this.#maxRuntimeMillis = maxRuntimeMillis;
-    workspace.onDidChangeConfiguration(async (event) => {
+    workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration("ifm")) {
         this.refreshCli();
       }
     });
   }
 
-  async refreshCli() {
-    this.cli = await getCli();
+  refreshCli() {
+    this.cli = getCli();
     for (const subscription of this.#didCliChangeSubscriptions.values()) {
       subscription();
     }
@@ -117,17 +118,17 @@ export class IfmAdapter implements Ifm {
   onDidCliChange(
     listener: () => void,
     thisArgs?: any,
-    disposables?: Disposable[]
+    disposables?: Disposable[],
   ) {
     const subscriptionId: number = this.#nextSubscriptionId++;
     this.#didCliChangeSubscriptions.set(
       subscriptionId,
-      listener.bind(thisArgs)
+      listener.bind(thisArgs),
     );
 
     const disposable = new Disposable(() => {
       log.info("Disposing of onDidCliChange subscription", subscriptionId);
-      this.#didCliChangeSubscriptions.delete(subscriptionId);
+      this.#didCliChangeSubscriptions["delete"](subscriptionId);
     });
     if (disposables) {
       disposables?.push(disposable);
@@ -174,17 +175,17 @@ export class IfmAdapter implements Ifm {
   onDidParseDocument(
     listener: (e: DocumentParsedEvent) => void,
     thisArgs?: any,
-    disposables?: Disposable[]
+    disposables?: Disposable[],
   ) {
     const subscriptionId: number = this.#nextSubscriptionId++;
     this.#didParseDocumentSubscriptions.set(
       subscriptionId,
-      listener.bind(thisArgs)
+      listener.bind(thisArgs),
     );
 
     const disposable = new Disposable(() => {
       log.info("Disposing of onDidParseDocument subscription", subscriptionId);
-      this.#didParseDocumentSubscriptions.delete(subscriptionId);
+      this.#didParseDocumentSubscriptions["delete"](subscriptionId);
     });
     if (disposables) {
       disposables?.push(disposable);

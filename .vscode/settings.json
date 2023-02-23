@@ -1,4 +1,11 @@
 {
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": true,
+    "editor.rulers": [
+      80
+    ]
+  },
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
@@ -6,7 +13,8 @@
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.formatOnSave": true,
     "editor.rulers": [
       80
     ]
@@ -14,7 +22,11 @@
   "[yaml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml"
   },
+  "eslint.format.enable": true,
   "eslint.nodePath": ".yarn/sdks",
+  "files.exclude": {
+    "**/.git": true
+  },
   "json.schemas": [
     {
       "fileMatch": [
@@ -23,11 +35,15 @@
       "url": "https://raw.githubusercontent.com/Septh/tmlanguage/master/tmlanguage.json"
     }
   ],
+  "markdownlint.config": {
+    "MD033": false
+  },
   "search.exclude": {
-    "**/.yarn": true,
-    "**/.pnp.*": true,
+    "/extension/build": true,
     "/extension/dist": true,
-    "/extension/work": true
+    "/extension/out": true,
+    "**/.yarn": true,
+    "**/.pnp.*": true
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsdk": ".yarn/sdks/typescript/lib"

@@ -163,8 +163,9 @@ The built-in `yarn up` command can be a bit cumbersome to use if you
 want to upgrade all dependencies in one go.
 
 Running the `yarn upgrade-packages` script will upgrade all relevant
-dependencies. That includes the `@types` and `@yarnpkg` scopes but
-excludes Yarn itself (see the `yarn upgrade-yarn-itself` section).
+dependencies. That includes the `@types`, `@typescript-eslint`, and
+`@yarnpkg` scopes but excludes Yarn itself (see the
+`yarn upgrade-yarn-itself` section).
 
 Also excluded is the `@types/vscode` package. For details, see
 section _Upgrading the VS Code API_.
@@ -216,13 +217,13 @@ To start editing a dependency, run `yarn patch <dependency>`.
 For example, to start editing the `vsce` executable, run:
 
 ```shell
-yarn patch @vscode/vsce@npm:2.16.0
+yarn patch @vscode/vsce@npm:2.17.0
 ```
 
 Since this project is already patching this dependency, you may want to apply the existing patch to the temporary working directory:
 
 ```shell
-patch < path/to/this/project/.yarn/patches/@vscode-vsce-npm-2.16.0-c171711221.patch
+patch < path/to/this/project/.yarn/patches/@vscode-vsce-npm-2.17.0-c171711221.patch
 ```
 
 ### Finish editing
@@ -242,7 +243,7 @@ Note: `yarn repatch` is a custom script. It serves to work around two issues in 
 - It may also use an incorrect key in the resolution entry it writes to `package.json`.  
   The key should match the dependency’s semver expression, not the resolved version.
   Using the latter as a key causes the resolution to never apply.  
-  Example for a correct key: `"@vscode/vsce@^2.16.0"`
+  Example for a correct key: `"@vscode/vsce@^2.17.0"`
 
 ## Handling vulnerable dependencies
 

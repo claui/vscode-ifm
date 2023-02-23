@@ -3,7 +3,7 @@
   "version": "1.2.3",
   "publisher": "claui",
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.75.0"
   },
   "license": "SEE LICENSE IN README.md",
   "displayName": "IFM – Interactive Fiction Mapping",
@@ -11,7 +11,7 @@
   "categories": [],
   "keywords": [],
   "preview": true,
-  "main": "dist/extension.js",
+  "main": "build/extension.js",
   "contributes": {
     "commands": [
       {
@@ -61,11 +61,9 @@
       }
     ]
   },
-  "activationEvents": [
-    "onLanguage:ifm"
-  ],
   "extensionKind": [
     "workspace"
   ],
+  "activationEvents": [],
   "repository": "github:claui/vscode-ifm"
 }

@@ -15,11 +15,11 @@ export class Diagnostics {
   #diagnosticCollection: DiagnosticCollection =
     languages.createDiagnosticCollection("IFM");
 
-  constructor(ifm: Ifm) {
-    ifm.onDidParseDocument(this.refresh, this);
+  constructor(ifmApi: Ifm) {
+    ifmApi.onDidParseDocument(this.refresh, this);
   }
 
-  async refresh(event: DocumentParsedEvent) {
+  refresh(event: DocumentParsedEvent) {
     log.info("Refreshing diagnostics", event.document.uri.toString());
     const matchResult = grammar.match(event.stderr);
     if (matchResult.failed()) {
@@ -27,14 +27,15 @@ export class Diagnostics {
     }
 
     const ifmMessages: ifm.Message[] =
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       semantics(matchResult).parseMessageGroup();
     const diagnostics: Diagnostic[] = ifmMessages.map((message) =>
-      toDiagnostic(message, event.document)
+      toDiagnostic(message, event.document),
     );
     this.#diagnosticCollection.set(event.document.uri, diagnostics);
   }
 
   delete(document: TextDocument) {
-    this.#diagnosticCollection.delete(document.uri);
+    this.#diagnosticCollection["delete"](document.uri);
   }
 }
