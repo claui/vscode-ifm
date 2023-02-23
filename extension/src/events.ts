@@ -19,7 +19,7 @@ import { throttleEvent } from "./events/throttle";
 
 const onDidInitiallyFindTextDocument: Event<TextDocument> = (
   listener: (e: TextDocument) => any,
-  thisArgs?: any
+  thisArgs?: any,
 ): Disposable => {
   for (const document of workspace.textDocuments) {
     listener.call(thisArgs, document);
@@ -40,21 +40,19 @@ export const onDidChangeRelevantTextDocument: Event<TextDocument> =
     .through(
       throttleEvent,
       CHANGE_EVENT_THROTTLE_MILLIS,
-      (e: TextDocumentChangeEvent) => e.document
+      (e: TextDocumentChangeEvent) => e.document,
     )
     .through(ignoreIfAlreadyClosed)
     .commit();
 
-export const onDidOpenRelevantTextDocument: Event<TextDocument> = streamEvents(
-  workspace.onDidOpenTextDocument
-)
-  .through(excludeIrrelevantTextDocumentsByScheme)
-  .through(excludeIrrelevantTextDocumentsByLanguage)
-  .commit();
+export const onDidOpenRelevantTextDocument: Event<TextDocument> =
+  streamEvents(workspace.onDidOpenTextDocument)
+    .through(excludeIrrelevantTextDocumentsByScheme)
+    .through(excludeIrrelevantTextDocumentsByLanguage)
+    .commit();
 
-export const onDidCloseRelevantTextDocument: Event<TextDocument> = streamEvents(
-  workspace.onDidCloseTextDocument
-)
-  .through(excludeIrrelevantTextDocumentsByScheme)
-  .through(excludeIrrelevantTextDocumentsByLanguage)
-  .commit();
+export const onDidCloseRelevantTextDocument: Event<TextDocument> =
+  streamEvents(workspace.onDidCloseTextDocument)
+    .through(excludeIrrelevantTextDocumentsByScheme)
+    .through(excludeIrrelevantTextDocumentsByLanguage)
+    .commit();

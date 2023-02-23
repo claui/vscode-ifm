@@ -2,9 +2,10 @@
   "recommendations": [
     "arcanis.vscode-zipfs",
     "attilah.ohm",
+    "davidanson.vscode-markdownlint",
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
-    "esbenp.prettier-vscode",
+    "henrynguyen5-vsc.vsc-nvm",
     "redhat.vscode-yaml"
   ]
 }

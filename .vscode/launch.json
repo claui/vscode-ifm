@@ -8,7 +8,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}/extension"
       ],
       "outFiles": [
-        "${workspaceFolder}/extension/dist/**/*.js"
+        "${workspaceFolder}/extension/build/**/*.js"
       ],
       "preLaunchTask": "Compile"
     }

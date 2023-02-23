@@ -12,49 +12,46 @@ const schemesToExclude: string[] = ["git", "gitfs", "output", "vscode"];
 const ifmLanguageSelector: DocumentSelector = { language: "ifm" };
 
 export function excludeIrrelevantChangeEventsByLanguage(
-  event: Event<TextDocumentChangeEvent>
+  event: Event<TextDocumentChangeEvent>,
 ): Event<TextDocumentChangeEvent> {
   return select(
     (e: TextDocumentChangeEvent) =>
       !!languages.match(ifmLanguageSelector, e.document),
-    event
+    event,
   );
 }
 
 export function excludeIrrelevantTextDocumentsByLanguage(
-  event: Event<TextDocument>
+  event: Event<TextDocument>,
 ): Event<TextDocument> {
   return select(
     (document: TextDocument) =>
       !!languages.match(ifmLanguageSelector, document),
-    event
+    event,
   );
 }
 
 export function excludeIrrelevantChangeEventsByScheme(
-  event: Event<TextDocumentChangeEvent>
+  event: Event<TextDocumentChangeEvent>,
 ): Event<TextDocumentChangeEvent> {
   return excludeUriSchemes(
-    schemesToExclude,
     (e: TextDocumentChangeEvent) => e.document.uri,
-    event
+    event,
   );
 }
 
 export function excludeIrrelevantTextDocumentsByScheme(
-  event: Event<TextDocument>
+  event: Event<TextDocument>,
 ): Event<TextDocument> {
   return excludeUriSchemes(
-    schemesToExclude,
     (document: TextDocument) => document.uri,
-    event
+    event,
   );
 }
 
 export function excludeUriSchemes<T>(
-  schemesToExclude: Iterable<String>,
   extractUri: (event: T) => Uri,
-  upstreamEvent: Event<T>
+  upstreamEvent: Event<T>,
 ): Event<T> {
   const schemesToExcludeArray: String[] = Array.from(schemesToExclude);
   function isSchemeRelevant(uri: Uri): boolean {
@@ -64,22 +61,26 @@ export function excludeUriSchemes<T>(
 }
 
 export function ignoreIfAlreadyClosed(
-  upstreamEvent: Event<TextDocument>
+  upstreamEvent: Event<TextDocument>,
 ): Event<TextDocument> {
   return select((document: TextDocument) => !document.isClosed, upstreamEvent);
 }
 
+/**
+ * @this any passed through to the upstream event.
+ */
 export function select<T>(
   match: (e: T) => boolean,
-  upstreamEvent: Event<T>
+  upstreamEvent: Event<T>,
 ): Event<T> {
   return (
     listener: (e: T) => any,
     listenerThisArgs?: any,
-    disposables?: Disposable[]
+    disposables?: Disposable[],
   ): Disposable => {
     const upstreamListener: (e: T) => any = (e) => {
-      return match(e) ? listener.call(listenerThisArgs, e) : undefined;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return match(e) ? listener.call(listenerThisArgs, e) : null;
     };
     return upstreamEvent(upstreamListener, this, disposables);
   };
