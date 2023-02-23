@@ -6,7 +6,7 @@ import {
 } from "child_process";
 import { promisify } from "util";
 
-import { Disposable, TextDocument, workspace } from "vscode";
+import { Disposable, Event, TextDocument, workspace } from "vscode";
 
 import { CliOutput, DocumentParsedEvent, Ifm, IfmCli } from "../cli-api";
 import { MAX_RUNTIME_MILLIS } from "../constants";
@@ -116,9 +116,7 @@ export class IfmAdapter implements Ifm {
   }
 
   onDidCliChange(
-    listener: () => void,
-    thisArgs?: any,
-    disposables?: Disposable[],
+    ...[listener, thisArgs, disposables]: Parameters<Event<void>>
   ) {
     const subscriptionId: number = this.#nextSubscriptionId++;
     this.#didCliChangeSubscriptions.set(
@@ -173,9 +171,7 @@ export class IfmAdapter implements Ifm {
   }
 
   onDidParseDocument(
-    listener: (e: DocumentParsedEvent) => void,
-    thisArgs?: any,
-    disposables?: Disposable[],
+    ...[listener, thisArgs, disposables]: Parameters<Event<DocumentParsedEvent>>
   ) {
     const subscriptionId: number = this.#nextSubscriptionId++;
     this.#didParseDocumentSubscriptions.set(

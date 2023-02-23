@@ -1,5 +1,4 @@
 import {
-  Disposable,
   DocumentSelector,
   Event,
   languages,
@@ -74,10 +73,8 @@ export function select<T>(
   upstreamEvent: Event<T>,
 ): Event<T> {
   return (
-    listener: (e: T) => any,
-    listenerThisArgs?: any,
-    disposables?: Disposable[],
-  ): Disposable => {
+    ...[listener, listenerThisArgs, disposables]: Parameters<Event<T>>
+  ) => {
     const upstreamListener: (e: T) => any = (e) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return match(e) ? listener.call(listenerThisArgs, e) : null;
