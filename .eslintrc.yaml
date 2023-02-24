@@ -64,7 +64,10 @@ rules:
   no-octal-escape: 2
   no-return-assign: 1
   no-self-compare: 1
-  no-shadow: 1
+
+  # For compatibility with typescript-eslint
+  no-shadow: 0
+
   no-tabs: 2
   no-template-curly-in-string: 1
   no-throw-literal: 2
@@ -115,6 +118,8 @@ rules:
   # In VS Code, this allows developers to manually specify
   # inferrable types so the distracting inline hints go away
   "@typescript-eslint/no-inferrable-types": 0
+
+  "@typescript-eslint/no-shadow": 1
 
   # https://github.com/typescript-eslint/typescript-eslint/issues/4912
   "@typescript-eslint/no-unsafe-argument": 0
