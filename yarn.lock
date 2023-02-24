@@ -617,9 +617,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vscode/vsce@npm:2.17.0, @vscode/vsce@npm:^2.15.0":
-  version: 2.17.0
-  resolution: "@vscode/vsce@npm:2.17.0"
+"@vscode/vsce@npm:2.18.0, @vscode/vsce@npm:^2.15.0":
+  version: 2.18.0
+  resolution: "@vscode/vsce@npm:2.18.0"
   dependencies:
     azure-devops-node-api: ^11.0.1
     chalk: ^2.4.2
@@ -627,6 +627,7 @@ __metadata:
     commander: ^6.1.0
     glob: ^7.0.6
     hosted-git-info: ^4.0.2
+    jsonc-parser: ^3.2.0
     keytar: ^7.7.0
     leven: ^3.1.0
     markdown-it: ^12.3.2
@@ -646,13 +647,13 @@ __metadata:
       optional: true
   bin:
     vsce: vsce
-  checksum: 5106662a4a5c258d1264aa084f599428f062d221b8f4e2fc806ccec9916e28bb22779db2cb53da3cc7e0a4243fdc435e0b90b8f064bef755cdf0751888b0cf64
+  checksum: 75eb2544e9976f9bc58b00c447496ba7c537d48eb1daf46e3ed2c29fd65517e90061c2448947ad5671576d3c6d460b164f39495738fda7198ee37818b5695397
   languageName: node
   linkType: hard
 
-"@vscode/vsce@patch:@vscode/vsce@npm:2.17.0#./.yarn/patches/@vscode-vsce-npm-2.17.0-c171711221.patch::locator=vscode-ifm%40workspace%3A.":
-  version: 2.17.0
-  resolution: "@vscode/vsce@patch:@vscode/vsce@npm%3A2.17.0#./.yarn/patches/@vscode-vsce-npm-2.17.0-c171711221.patch::version=2.17.0&hash=3a3357&locator=vscode-ifm%40workspace%3A."
+"@vscode/vsce@patch:@vscode/vsce@npm:2.18.0#./.yarn/patches/@vscode-vsce-npm-2.18.0-c171711221.patch::locator=vscode-ifm%40workspace%3A.":
+  version: 2.18.0
+  resolution: "@vscode/vsce@patch:@vscode/vsce@npm%3A2.18.0#./.yarn/patches/@vscode-vsce-npm-2.18.0-c171711221.patch::version=2.18.0&hash=3a3357&locator=vscode-ifm%40workspace%3A."
   dependencies:
     azure-devops-node-api: ^11.0.1
     chalk: ^2.4.2
@@ -660,6 +661,7 @@ __metadata:
     commander: ^6.1.0
     glob: ^7.0.6
     hosted-git-info: ^4.0.2
+    jsonc-parser: ^3.2.0
     keytar: ^7.7.0
     leven: ^3.1.0
     markdown-it: ^12.3.2
@@ -679,7 +681,7 @@ __metadata:
       optional: true
   bin:
     vsce: vsce
-  checksum: 63e86233e40ecd9325fc95f7995ba3448c824ca235129a720f0fd256ba41c67d991f186b4d7efe5b6f1a82ffeb9846ebf53a8a74f840d850f4a14c2c706972d1
+  checksum: 4d2c1f889a5b5a1eb9cd272205c425e34dd8b96c5c70a34dc77f791837a09f8c24ccd3b35762967ee6755eaeb54a974f5e849ed212bf74f7af1b8680f59b49bf
   languageName: node
   linkType: hard
 
@@ -773,7 +775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yarnpkg/sdks@npm:^2.6.3":
+"@yarnpkg/sdks@npm:^2.7.0":
   version: 2.7.0
   resolution: "@yarnpkg/sdks@npm:2.7.0"
   dependencies:
@@ -2650,6 +2652,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonc-parser@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "jsonc-parser@npm:3.2.0"
+  checksum: 946dd9a5f326b745aa326d48a7257e3f4a4b62c5e98ec8e49fa2bdd8d96cef7e6febf1399f5c7016114fd1f68a1c62c6138826d5d90bc650448e3cf0951c53c7
+  languageName: node
+  linkType: hard
+
 "keytar@npm:^7.7.0":
   version: 7.9.0
   resolution: "keytar@npm:7.9.0"
@@ -2987,9 +2996,9 @@ __metadata:
   linkType: hard
 
 "minipass@npm:^4.0.0":
-  version: 4.2.0
-  resolution: "minipass@npm:4.2.0"
-  checksum: 3c3ce269eacdcecb56b5dfe4bb4ab905d60fea1af4c967c7ed54baadfdd4af03e4d926567fb655957504fb4c9e2e7adbb2dc636927dfb56c829f2b25f1b2b3dd
+  version: 4.2.1
+  resolution: "minipass@npm:4.2.1"
+  checksum: 727641018e2b2dcd8fb6239b9220b4f0ef1b43d279dcb7f53840f7c43d005a36f0cdcfe2ffbc18ce32fae2ea484d3e7d3cb29cbe99c9274b0365bbb74661266c
   languageName: node
   linkType: hard
 
@@ -4279,8 +4288,8 @@ __metadata:
     "@types/vscode": =1.75
     "@typescript-eslint/eslint-plugin": ^5.53.0
     "@typescript-eslint/parser": ^5.53.0
-    "@vscode/vsce": ^2.17.0
-    "@yarnpkg/sdks": ^2.6.3
+    "@vscode/vsce": ^2.18.0
+    "@yarnpkg/sdks": ^2.7.0
     del-cli: ^5.0.0
     esbuild: ^0.17.10
     eslint: ^8.34.0
