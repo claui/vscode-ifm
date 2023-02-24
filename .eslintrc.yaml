@@ -74,6 +74,7 @@ rules:
   no-trailing-spaces: 1
   no-undefined: 1
   no-unexpected-multiline: 1
+  no-unreachable: 1
   no-unused-expressions: 1
 
   # For compatibility with typescript-eslint
