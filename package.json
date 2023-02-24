@@ -10,8 +10,8 @@
     "@types/vscode": "=1.75",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
-    "@vscode/vsce": "^2.17.0",
-    "@yarnpkg/sdks": "^2.6.3",
+    "@vscode/vsce": "^2.18.0",
+    "@yarnpkg/sdks": "^2.7.0",
     "del-cli": "^5.0.0",
     "esbuild": "^0.17.10",
     "eslint": "^8.34.0",
@@ -39,7 +39,7 @@
     "vscode:prepublish": "yarn clean && yarn compile"
   },
   "resolutions": {
-    "@vscode/vsce@^2.17.0": "patch:@vscode/vsce@npm:2.17.0#./.yarn/patches/@vscode-vsce-npm-2.17.0-c171711221.patch"
+    "@vscode/vsce@^2.18.0": "patch:@vscode/vsce@npm:2.18.0#./.yarn/patches/@vscode-vsce-npm-2.18.0-c171711221.patch"
   },
   "packageManager": "yarn@3.4.1"
 }
