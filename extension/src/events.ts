@@ -7,11 +7,11 @@ import {
 import { CHANGE_EVENT_THROTTLE_MILLIS } from "./constants";
 
 import {
-  excludeIrrelevantChangeEventsByLanguage,
-  excludeIrrelevantChangeEventsByScheme,
-  excludeIrrelevantTextDocumentsByLanguage,
-  excludeIrrelevantTextDocumentsByScheme,
   ignoreIfAlreadyClosed,
+  relevantChangeEventsByLanguage,
+  relevantChangeEventsByScheme,
+  relevantTextDocumentsByLanguage,
+  relevantTextDocumentsByScheme,
 } from "./events/filters";
 import { EventStream } from "./events/stream";
 import { throttleEvent } from "./events/throttle";
@@ -27,22 +27,22 @@ const onDidInitiallyFindTextDocument: Event<TextDocument> = (
 
 export const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
   EventStream.of(onDidInitiallyFindTextDocument)
-    .filter(excludeIrrelevantTextDocumentsByScheme)
-    .filter(excludeIrrelevantTextDocumentsByLanguage);
+    .select(relevantTextDocumentsByScheme)
+    .select(relevantTextDocumentsByLanguage);
 
 export const onDidChangeRelevantTextDocument: Event<TextDocument> =
   EventStream.of(workspace.onDidChangeTextDocument)
-    .filter(excludeIrrelevantChangeEventsByScheme)
-    .filter(excludeIrrelevantChangeEventsByLanguage)
+    .select(relevantChangeEventsByScheme)
+    .select(relevantChangeEventsByLanguage({language: "ifm"}))
     .map(throttleEvent(CHANGE_EVENT_THROTTLE_MILLIS, (e) => e.document))
-    .filter(ignoreIfAlreadyClosed);
+    .select(ignoreIfAlreadyClosed);
 
 export const onDidOpenRelevantTextDocument: Event<TextDocument> =
   EventStream.of(workspace.onDidOpenTextDocument)
-    .filter(excludeIrrelevantTextDocumentsByScheme)
-    .filter(excludeIrrelevantTextDocumentsByLanguage);
+    .select(relevantTextDocumentsByScheme)
+    .select(relevantTextDocumentsByLanguage);
 
 export const onDidCloseRelevantTextDocument: Event<TextDocument> =
   EventStream.of(workspace.onDidCloseTextDocument)
-    .filter(excludeIrrelevantTextDocumentsByScheme)
-    .filter(excludeIrrelevantTextDocumentsByLanguage);
+    .select(relevantTextDocumentsByScheme)
+    .select(relevantTextDocumentsByLanguage);

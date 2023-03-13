@@ -6,21 +6,20 @@ import {
   TextDocumentChangeEvent,
   Uri,
 } from "vscode";
+import { EventStreamFunction } from "./stream";
 
 const schemesToExclude: string[] = ["git", "gitfs", "output", "vscode"];
 const ifmLanguageSelector: DocumentSelector = { language: "ifm" };
 
-export function excludeIrrelevantChangeEventsByLanguage(
-  event: Event<TextDocumentChangeEvent>,
-): Event<TextDocumentChangeEvent> {
-  return select(
-    (e: TextDocumentChangeEvent) =>
-      !!languages.match(ifmLanguageSelector, e.document),
-    event,
-  );
+export function relevantChangeEventsByLanguage(
+  selector: DocumentSelector,
+): EventStreamFunction<TextDocumentChangeEvent, TextDocumentChangeEvent, []> {
+  return (event) => {
+    return select((e) => !!languages.match(selector, e.document), event);
+  }
 }
 
-export function excludeIrrelevantTextDocumentsByLanguage(
+export function relevantTextDocumentsByLanguage(
   event: Event<TextDocument>,
 ): Event<TextDocument> {
   return select(
@@ -30,7 +29,7 @@ export function excludeIrrelevantTextDocumentsByLanguage(
   );
 }
 
-export function excludeIrrelevantChangeEventsByScheme(
+export function relevantChangeEventsByScheme(
   event: Event<TextDocumentChangeEvent>,
 ): Event<TextDocumentChangeEvent> {
   return excludeUriSchemes(
@@ -39,7 +38,7 @@ export function excludeIrrelevantChangeEventsByScheme(
   );
 }
 
-export function excludeIrrelevantTextDocumentsByScheme(
+export function relevantTextDocumentsByScheme(
   event: Event<TextDocument>,
 ): Event<TextDocument> {
   return excludeUriSchemes(
