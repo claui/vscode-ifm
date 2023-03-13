@@ -27,22 +27,22 @@ const onDidInitiallyFindTextDocument: Event<TextDocument> = (
 
 export const onDidInitiallyFindRelevantTextDocument: Event<TextDocument> =
   EventStream.of(onDidInitiallyFindTextDocument)
-    .through(excludeIrrelevantTextDocumentsByScheme)
-    .through(excludeIrrelevantTextDocumentsByLanguage);
+    .filter(excludeIrrelevantTextDocumentsByScheme)
+    .filter(excludeIrrelevantTextDocumentsByLanguage);
 
 export const onDidChangeRelevantTextDocument: Event<TextDocument> =
   EventStream.of(workspace.onDidChangeTextDocument)
-    .through(excludeIrrelevantChangeEventsByScheme)
-    .through(excludeIrrelevantChangeEventsByLanguage)
+    .filter(excludeIrrelevantChangeEventsByScheme)
+    .filter(excludeIrrelevantChangeEventsByLanguage)
     .map(throttleEvent(CHANGE_EVENT_THROTTLE_MILLIS, (e) => e.document))
-    .through(ignoreIfAlreadyClosed);
+    .filter(ignoreIfAlreadyClosed);
 
 export const onDidOpenRelevantTextDocument: Event<TextDocument> =
   EventStream.of(workspace.onDidOpenTextDocument)
-    .through(excludeIrrelevantTextDocumentsByScheme)
-    .through(excludeIrrelevantTextDocumentsByLanguage);
+    .filter(excludeIrrelevantTextDocumentsByScheme)
+    .filter(excludeIrrelevantTextDocumentsByLanguage);
 
 export const onDidCloseRelevantTextDocument: Event<TextDocument> =
   EventStream.of(workspace.onDidCloseTextDocument)
-    .through(excludeIrrelevantTextDocumentsByScheme)
-    .through(excludeIrrelevantTextDocumentsByLanguage);
+    .filter(excludeIrrelevantTextDocumentsByScheme)
+    .filter(excludeIrrelevantTextDocumentsByLanguage);
