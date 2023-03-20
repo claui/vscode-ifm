@@ -2,11 +2,11 @@
   "name": "vscode-ifm",
   "license": "SEE LICENSE IN README.md",
   "dependencies": {
-    "@types/throttle-debounce": "^5.0.0",
     "throttle-debounce": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^18.14.1",
+    "@types/throttle-debounce": "^5.0.0",
     "@types/vscode": "=1.75",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
