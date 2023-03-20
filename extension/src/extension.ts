@@ -2,13 +2,10 @@ import { commands } from "vscode";
 
 import { Ifm } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
+import { CHANGE_EVENT_THROTTLE_MILLIS } from "./constants";
 import { Diagnostics } from "./diagnostics";
-import {
-  onDidChangeRelevantTextDocument,
-  onDidCloseRelevantTextDocument,
-  onDidInitiallyFindRelevantTextDocument,
-  onDidOpenRelevantTextDocument,
-} from "./events";
+
+import { EventCurator } from "./event-curator";
 import log from "./log";
 import { Status } from "./status";
 
@@ -21,19 +18,15 @@ export async function activate() {
   commands.registerCommand("ifm.action.refresh", ifm.refreshCli, ifm);
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
-  onDidInitiallyFindRelevantTextDocument((document) => {
-    ifm.parseDocument(document);
+  const curator = new EventCurator({
+    language: "ifm",
+    changeEventThrottleMillis: CHANGE_EVENT_THROTTLE_MILLIS,
   });
 
-  onDidChangeRelevantTextDocument((document) => {
-    ifm.parseDocument(document);
-  });
-
-  onDidOpenRelevantTextDocument((document) => {
-    ifm.parseDocument(document);
-  });
-
-  onDidCloseRelevantTextDocument((document) => {
+  curator.onDidInitiallyFindRelevantTextDocument(ifm.parseDocument, ifm);
+  curator.onDidChangeRelevantTextDocument(ifm.parseDocument, ifm);
+  curator.onDidOpenRelevantTextDocument(ifm.parseDocument, ifm);
+  curator.onDidCloseRelevantTextDocument((document) => {
     diagnostics["delete"](document);
     log.debug("Diagnostics deleted");
   });
