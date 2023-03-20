@@ -507,13 +507,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/throttle-debounce@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "@types/throttle-debounce@npm:5.0.0"
-  checksum: f0b1f626816154466a6c7699fa9a87614f2b65c649654d02456e3603c38c29457b40d26c2ac820c2c44574e92f210c21b0cdce747b578d27566d5faa1daaae7e
-  languageName: node
-  linkType: hard
-
 "@types/treeify@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/treeify@npm:1.0.0"
@@ -4287,12 +4280,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vscode-event-curator@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "vscode-event-curator@npm:0.1.1"
+  dependencies:
+    throttle-debounce: ^5.0.0
+  peerDependencies:
+    "@types/vscode": ^1.75
+  checksum: 08c0387a85e9c3dbe6de9d8881896534e84c421a6cc7a64ff486a3c9e06c7a928cb2191c32d05d0f6bd195ca6f9b4420a4b8bafb3f4d632bd53f11ccc3582d3c
+  languageName: node
+  linkType: hard
+
 "vscode-ifm@workspace:.":
   version: 0.0.0-use.local
   resolution: "vscode-ifm@workspace:."
   dependencies:
     "@types/node": ^16.11.7
-    "@types/throttle-debounce": ^5.0.0
     "@types/vscode": =1.75
     "@typescript-eslint/eslint-plugin": ^5.56.0
     "@typescript-eslint/parser": ^5.56.0
@@ -4304,9 +4307,9 @@ __metadata:
     ohm-js: ^17.0.4
     ovsx: ^0.8.0
     semver: ^7.3.8
-    throttle-debounce: ^5.0.0
     ts-node: ^10.9.1
     typescript: ^5.0.2
+    vscode-event-curator: ^0.1.1
   languageName: unknown
   linkType: soft
 

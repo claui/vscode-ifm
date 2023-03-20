@@ -5,7 +5,7 @@ import { IfmAdapter } from "./cli-api/impl";
 import { CHANGE_EVENT_THROTTLE_MILLIS } from "./constants";
 import { Diagnostics } from "./diagnostics";
 
-import { EventCurator } from "./event-curator";
+import { EventCurator } from "vscode-event-curator";
 import log from "./log";
 import { Status } from "./status";
 
