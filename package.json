@@ -41,5 +41,5 @@
   "resolutions": {
     "@vscode/vsce@^2.18.0": "patch:@vscode/vsce@npm:2.18.0#./.yarn/patches/@vscode-vsce-npm-2.18.0-c171711221.patch"
   },
-  "packageManager": "yarn@3.4.1"
+  "packageManager": "yarn@3.5.0"
 }
