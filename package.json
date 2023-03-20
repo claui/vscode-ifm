@@ -5,6 +5,7 @@
     "node": "^16.0.0"
   },
   "dependencies": {
+    "ohm-js": "^17.0.4",
     "vscode-event-curator": "^0.1.1"
   },
   "devDependencies": {
@@ -17,7 +18,6 @@
     "del-cli": "^5.0.0",
     "esbuild": "^0.17.12",
     "eslint": "^8.36.0",
-    "ohm-js": "^17.0.4",
     "ovsx": "^0.8.0",
     "semver": "^7.3.8",
     "ts-node": "^10.9.1",
