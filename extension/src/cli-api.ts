@@ -14,10 +14,10 @@ interface CliOk {
 
 type CliNotOk = { reason: string, error: Error };
 
-export type CliOutput = { ok: boolean; stdout: string; stderr: string };
+export type CliOutput = { success: boolean; stdout: string; stderr: string };
 export type CliResult =
   | { hasRun: true } & CliOutput
-  | { hasRun: false, ok: false } & CliNotOk
+  | { hasRun: false, success: false } & CliNotOk
 
 export type DocumentParsedEvent = { document: TextDocument } & CliResult;
 

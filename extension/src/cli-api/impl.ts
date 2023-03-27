@@ -120,7 +120,7 @@ export class IfmAdapter implements Ifm {
   parseDocument(document: TextDocument) {
     if (!this.cli.ok) {
       this.#didParseDocumentEventEmitter.fire(
-        { document, hasRun: false, ...this.cli });
+        { document, hasRun: false, success: false, ...this.cli });
       return;
     }
 
@@ -140,16 +140,16 @@ export class IfmAdapter implements Ifm {
         error?: Error;
       } = this.cli.runSync(cliArgs, document.getText(), this.#maxRuntimeMillis);
       cliOutput = {
-        ok: runSyncResult.status === 0,
+        success: runSyncResult.status === 0,
         ...runSyncResult,
       };
-      if (!cliOutput.ok) {
+      if (!cliOutput.success) {
         log.error("exit status:", runSyncResult.status);
         log.error("error:", runSyncResult.error);
       }
     } catch (error) {
       cliOutput = {
-        ok: false,
+        success: false,
         ...(error as { stdout: string; stderr: string }),
       };
       log.error(error);

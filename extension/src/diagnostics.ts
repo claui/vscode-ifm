@@ -1,7 +1,9 @@
 import {
   Diagnostic,
   DiagnosticCollection,
+  DiagnosticSeverity,
   languages,
+  Range,
   TextDocument,
 } from "vscode";
 
@@ -16,7 +18,21 @@ export class Diagnostics {
     languages.createDiagnosticCollection("IFM");
 
   constructor(ifmApi: Ifm) {
-    ifmApi.onDidParseDocument(this.refresh, this);
+    ifmApi.onDidParseDocument((event) => {
+      try {
+        this.refresh(event);
+      } catch (error) {
+        const pseudoRange = new Range(0, 0, 0, 0);
+        const diagnostic = new Diagnostic(
+          pseudoRange,
+          "Unable to provide diagnostics."
+            + ` See extension log “${log.name}” for details.`,
+          DiagnosticSeverity.Error,
+        );
+        diagnostic.source = "ifm";
+        this.#diagnosticCollection.set(event.document.uri, [diagnostic]);
+      }
+    });
   }
 
   refresh(event: DocumentParsedEvent) {
