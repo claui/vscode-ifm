@@ -31,6 +31,10 @@ export async function activate() {
     log.debug("Diagnostics deleted");
   });
 
+  ifm.onDidCliChange(() => {
+    curator.onDidInitiallyFindRelevantTextDocument(ifm.parseDocument, ifm);
+  });
+
   return { ifm } as { ifm: Ifm };
 }
 
