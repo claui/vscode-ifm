@@ -6,7 +6,7 @@ import {
 } from "child_process";
 import { promisify } from "util";
 
-import { Disposable, Event, TextDocument, workspace } from "vscode";
+import { EventEmitter, TextDocument, workspace } from "vscode";
 
 import { CliOutput, DocumentParsedEvent, Ifm, IfmCli } from "../cli-api";
 import { MAX_RUNTIME_MILLIS } from "../constants";
@@ -83,14 +83,10 @@ function getCli(): IfmCli {
 }
 
 export class IfmAdapter implements Ifm {
-  #didCliChangeSubscriptions: Map<number, () => void> = new Map();
-  #didParseDocumentSubscriptions: Map<
-    number,
-    (e: DocumentParsedEvent) => void
-  > = new Map();
+  #didCliChangeEventEmitter = new EventEmitter<void>();
+  #didParseDocumentEventEmitter = new EventEmitter<DocumentParsedEvent>();
 
   #maxRuntimeMillis: string | number;
-  #nextSubscriptionId = 0;
   cli: IfmCli;
 
   static newInstance(): IfmAdapter {
@@ -110,29 +106,10 @@ export class IfmAdapter implements Ifm {
 
   refreshCli() {
     this.cli = getCli();
-    for (const subscription of this.#didCliChangeSubscriptions.values()) {
-      subscription();
-    }
+    this.#didCliChangeEventEmitter.fire();
   }
 
-  onDidCliChange(
-    ...[listener, thisArgs, disposables]: Parameters<Event<void>>
-  ) {
-    const subscriptionId: number = this.#nextSubscriptionId++;
-    this.#didCliChangeSubscriptions.set(
-      subscriptionId,
-      listener.bind(thisArgs),
-    );
-
-    const disposable = new Disposable(() => {
-      log.info("Disposing of onDidCliChange subscription", subscriptionId);
-      this.#didCliChangeSubscriptions["delete"](subscriptionId);
-    });
-    if (disposables) {
-      disposables?.push(disposable);
-    }
-    return disposable;
-  }
+  onDidCliChange = this.#didCliChangeEventEmitter.event;
 
   parseDocument(document: TextDocument) {
     const cliArgs: string[] = [
@@ -165,27 +142,8 @@ export class IfmAdapter implements Ifm {
       };
       log.error(error);
     }
-    for (const subscription of this.#didParseDocumentSubscriptions.values()) {
-      subscription({ document, ...cliOutput });
-    }
+    this.#didParseDocumentEventEmitter.fire({ document, ...cliOutput });
   }
 
-  onDidParseDocument(
-    ...[listener, thisArgs, disposables]: Parameters<Event<DocumentParsedEvent>>
-  ) {
-    const subscriptionId: number = this.#nextSubscriptionId++;
-    this.#didParseDocumentSubscriptions.set(
-      subscriptionId,
-      listener.bind(thisArgs),
-    );
-
-    const disposable = new Disposable(() => {
-      log.info("Disposing of onDidParseDocument subscription", subscriptionId);
-      this.#didParseDocumentSubscriptions["delete"](subscriptionId);
-    });
-    if (disposables) {
-      disposables?.push(disposable);
-    }
-    return disposable;
-  }
+  onDidParseDocument = this.#didParseDocumentEventEmitter.event;
 }
