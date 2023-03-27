@@ -1,5 +1,7 @@
 import { Event, TextDocument } from "vscode";
 
+export { onDidCliChange } from "./cli-api/impl";
+
 interface CliOk {
   readonly version: string;
 
@@ -33,8 +35,6 @@ export type DocumentParsedEvent = { document: TextDocument } & CliResult;
  */
 export interface Ifm {
   readonly cli: IfmCli;
-
-  onDidCliChange: Event<void>;
 
   onDidParseDocument: Event<DocumentParsedEvent>;
 }

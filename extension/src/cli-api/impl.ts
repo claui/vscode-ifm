@@ -5,7 +5,7 @@ import {
 } from "child_process";
 import { promisify } from "util";
 
-import { EventEmitter, TextDocument, workspace } from "vscode";
+import { Event, EventEmitter, TextDocument, workspace } from "vscode";
 
 import { CliOutput, DocumentParsedEvent, Ifm, IfmCli } from "../cli-api";
 import { MAX_RUNTIME_MILLIS } from "../constants";
@@ -16,6 +16,9 @@ const MAX_LENGTH = 256;
 const VERSION_PATTERN = /IFM version (?<version>.*)/;
 
 const execFileAsync = promisify(execFile);
+
+const didCliChangeEventEmitter = new EventEmitter<IfmCli>();
+export const onDidCliChange: Event<IfmCli> = didCliChangeEventEmitter.event;
 
 async function getVersion(
   cliRun: (argv: string[]) => Promise<{ stdout: string; stderr: string }>,
@@ -89,7 +92,6 @@ async function getCli(): Promise<IfmCli> {
 }
 
 export class IfmAdapter implements Ifm {
-  #didCliChangeEventEmitter = new EventEmitter<void>();
   #didParseDocumentEventEmitter = new EventEmitter<DocumentParsedEvent>();
 
   #maxRuntimeMillis: string | number;
@@ -108,14 +110,14 @@ export class IfmAdapter implements Ifm {
         void this.refreshCli();
       }
     });
+    didCliChangeEventEmitter.fire(cli);
   }
 
   async refreshCli() {
-    this.cli = await getCli();
-    this.#didCliChangeEventEmitter.fire();
+    const cli: IfmCli = await getCli();
+    this.cli = cli;
+    didCliChangeEventEmitter.fire(cli);
   }
-
-  onDidCliChange = this.#didCliChangeEventEmitter.event;
 
   parseDocument(document: TextDocument) {
     if (!this.cli.ok) {

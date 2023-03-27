@@ -1,6 +1,6 @@
 import { commands } from "vscode";
 
-import { Ifm } from "./cli-api";
+import { Ifm, onDidCliChange } from "./cli-api";
 import { IfmAdapter } from "./cli-api/impl";
 import { CHANGE_EVENT_THROTTLE_MILLIS } from "./constants";
 import { Diagnostics } from "./diagnostics";
@@ -10,10 +10,11 @@ import log from "./log";
 import { Status } from "./status";
 
 export async function activate() {
+  const status: Status = new Status();
+  status.busy("Initializing");
+
   const ifm: IfmAdapter = await IfmAdapter.newInstance();
   const diagnostics: Diagnostics = new Diagnostics(ifm);
-  const status: Status = new Status(ifm);
-  status.refresh();
 
   commands.registerCommand("ifm.action.refresh", ifm.refreshCli, ifm);
   commands.registerCommand("ifm.action.showLog", log.show, log);
@@ -31,7 +32,7 @@ export async function activate() {
     log.debug("Diagnostics deleted");
   });
 
-  ifm.onDidCliChange(() => {
+  onDidCliChange(() => {
     curator.onDidInitiallyFindRelevantTextDocument(ifm.parseDocument, ifm);
   });
 
