@@ -1,8 +1,25 @@
 import { Event, TextDocument } from "vscode";
 
-export type CliOutput = { ok: boolean; stdout: string; stderr: string };
+interface CliOk {
+  readonly version: string;
 
-export type DocumentParsedEvent = { document: TextDocument } & CliOutput;
+  run(argv: string[]): Promise<{ stdout: string; stderr: string }>;
+
+  runSync(
+    argv: string[],
+    input: string,
+    timeout: string | number
+  ): { stdout: string; stderr: string; status: number | null; error?: Error };
+}
+
+type CliNotOk = { reason: string, error: Error };
+
+export type CliOutput = { ok: boolean; stdout: string; stderr: string };
+export type CliResult =
+  | { hasRun: true } & CliOutput
+  | { hasRun: false, ok: false } & CliNotOk
+
+export type DocumentParsedEvent = { document: TextDocument } & CliResult;
 
 /**
  * Internal API to be consumed by clients of the CLI.
@@ -22,14 +39,6 @@ export interface Ifm {
   onDidParseDocument: Event<DocumentParsedEvent>;
 }
 
-export interface IfmCli {
-  get version(): Promise<string>;
-
-  run(argv: string[]): Promise<{ stdout: string; stderr: string }>;
-
-  runSync(
-    argv: string[],
-    input: string,
-    timeout: string | number
-  ): { stdout: string; stderr: string; status: number | null; error?: Error };
-}
+export type IfmCli =
+  | { ok: true } & CliOk
+  | { ok: false } & CliNotOk

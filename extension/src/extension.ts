@@ -10,10 +10,10 @@ import log from "./log";
 import { Status } from "./status";
 
 export async function activate() {
-  const ifm: IfmAdapter = IfmAdapter.newInstance();
+  const ifm: IfmAdapter = await IfmAdapter.newInstance();
   const diagnostics: Diagnostics = new Diagnostics(ifm);
   const status: Status = new Status(ifm);
-  await status.refresh();
+  status.refresh();
 
   commands.registerCommand("ifm.action.refresh", ifm.refreshCli, ifm);
   commands.registerCommand("ifm.action.showLog", log.show, log);

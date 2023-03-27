@@ -21,6 +21,9 @@ export class Diagnostics {
 
   refresh(event: DocumentParsedEvent) {
     log.info("Refreshing diagnostics", event.document.uri.toString());
+    if (!event.hasRun) {
+      throw new Error(event.reason);
+    }
     const matchResult = grammar.match(event.stderr);
     if (matchResult.failed()) {
       throw new Error(matchResult.message);

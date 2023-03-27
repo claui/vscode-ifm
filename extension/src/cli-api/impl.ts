@@ -2,7 +2,6 @@ import {
   execFile,
   spawnSync,
   SpawnSyncOptionsWithStringEncoding,
-  SpawnSyncReturns,
 } from "child_process";
 import { promisify } from "util";
 
@@ -23,7 +22,7 @@ async function getVersion(
 ): Promise<string> {
   let stdout: string;
   try {
-    ({stdout} = await cliRun(["--version"]));
+    ({ stdout } = await cliRun(["--version"]));
   } catch (error) {
     throw new CliFailedError("Unable to obtain IFM CLI version", {
       cause: error,
@@ -45,7 +44,7 @@ async function getVersion(
   return versionString.trim();
 }
 
-function getCli(): IfmCli {
+async function getCli(): Promise<IfmCli> {
   function getExecutable(): string {
     const executablePathSetting: string | undefined = workspace
       .getConfiguration("ifm")
@@ -61,11 +60,7 @@ function getCli(): IfmCli {
     return execFileAsync(getExecutable(), argv);
   }
 
-  function runSync(
-    argv: string[],
-    input: string,
-    timeout: string | number,
-  ): SpawnSyncReturns<string> {
+  function runSync(argv: string[], input: string, timeout: string | number) {
     return spawnSync(getExecutable(), argv, {
       input,
       timeout,
@@ -73,13 +68,24 @@ function getCli(): IfmCli {
     } as SpawnSyncOptionsWithStringEncoding);
   }
 
-  return {
-    get version() {
-      return getVersion(run);
-    },
-    run,
-    runSync,
-  };
+  try {
+    return {
+      ok: true,
+      version: await getVersion(run),
+      run,
+      runSync,
+    };
+
+  } catch (error) {
+    const reason: string = (error instanceof CliFailedError && "cause" in error)
+      ? String(error.cause)
+      : String(error.message);
+    return {
+      ok: false,
+      reason,
+      error,
+    };
+  }
 }
 
 export class IfmAdapter implements Ifm {
@@ -89,8 +95,8 @@ export class IfmAdapter implements Ifm {
   #maxRuntimeMillis: string | number;
   cli: IfmCli;
 
-  static newInstance(): IfmAdapter {
-    const cli: IfmCli = getCli();
+  static async newInstance(): Promise<IfmAdapter> {
+    const cli: IfmCli = await getCli();
     return new IfmAdapter(cli, MAX_RUNTIME_MILLIS);
   }
 
@@ -99,19 +105,25 @@ export class IfmAdapter implements Ifm {
     this.#maxRuntimeMillis = maxRuntimeMillis;
     workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration("ifm")) {
-        this.refreshCli();
+        void this.refreshCli();
       }
     });
   }
 
-  refreshCli() {
-    this.cli = getCli();
+  async refreshCli() {
+    this.cli = await getCli();
     this.#didCliChangeEventEmitter.fire();
   }
 
   onDidCliChange = this.#didCliChangeEventEmitter.event;
 
   parseDocument(document: TextDocument) {
+    if (!this.cli.ok) {
+      this.#didParseDocumentEventEmitter.fire(
+        { document, hasRun: false, ...this.cli });
+      return;
+    }
+
     const cliArgs: string[] = [
       "--format",
       "yaml",
@@ -142,7 +154,8 @@ export class IfmAdapter implements Ifm {
       };
       log.error(error);
     }
-    this.#didParseDocumentEventEmitter.fire({ document, ...cliOutput });
+    this.#didParseDocumentEventEmitter.fire(
+      { document, hasRun: true, ...cliOutput });
   }
 
   onDidParseDocument = this.#didParseDocumentEventEmitter.event;
