@@ -1,22 +1,36 @@
-import { commands } from "vscode";
-
-import { Ifm, onDidCliChange } from "./cli-api";
-import { IfmAdapter } from "./cli-api/impl";
-import { CHANGE_EVENT_THROTTLE_MILLIS } from "./constants";
-import { Diagnostics } from "./diagnostics";
+import {
+  commands, ConfigurationScope, ExtensionContext, workspace,
+} from "vscode";
 
 import { EventCurator } from "vscode-event-curator";
+
+import { CliProvider, ExecutableConfigProvider } from "./cli";
+import { CHANGE_EVENT_THROTTLE_MILLIS, MAX_RUNTIME_MILLIS } from "./constants";
+import { Diagnostics } from "./diagnostics";
 import log from "./log";
+import { Parser } from "./parser";
 import { Status } from "./status";
 
-export async function activate() {
+function createParser(): Parser {
+  const executableConfigProvider: ExecutableConfigProvider =
+    (scope?: ConfigurationScope) => ({
+      executable: workspace
+        .getConfiguration("ifm", scope)
+        .get("executablePath") || "ifm",
+      maxRuntimeMillis: MAX_RUNTIME_MILLIS,
+    })
+  const cliProvider = new CliProvider("ifm", executableConfigProvider);
+  return new Parser(cliProvider);
+}
+
+export function activate(context: ExtensionContext) {
   const status: Status = new Status();
   status.busy("Initializing");
+  const parser: Parser = createParser();
 
-  const ifm: IfmAdapter = await IfmAdapter.newInstance();
-  const diagnostics: Diagnostics = new Diagnostics(ifm);
+  const diagnostics: Diagnostics = new Diagnostics(parser);
 
-  commands.registerCommand("ifm.action.refresh", ifm.refreshCli, ifm);
+  commands.registerCommand("ifm.action.refresh", () => log.info("Refreshing"));
   commands.registerCommand("ifm.action.showLog", log.show, log);
 
   const curator = new EventCurator({
@@ -24,19 +38,15 @@ export async function activate() {
     changeEventThrottleMillis: CHANGE_EVENT_THROTTLE_MILLIS,
   });
 
-  curator.onDidInitiallyFindRelevantTextDocument(ifm.parseDocument, ifm);
-  curator.onDidChangeRelevantTextDocument(ifm.parseDocument, ifm);
-  curator.onDidOpenRelevantTextDocument(ifm.parseDocument, ifm);
+  curator.onDidInitiallyFindRelevantTextDocument(parser.parseDocument, parser);
+  curator.onDidChangeRelevantTextDocument(parser.parseDocument, parser);
+  curator.onDidOpenRelevantTextDocument(parser.parseDocument, parser);
   curator.onDidCloseRelevantTextDocument((document) => {
     diagnostics["delete"](document);
     log.debug("Diagnostics deleted");
   });
 
-  onDidCliChange(() => {
-    curator.onDidInitiallyFindRelevantTextDocument(ifm.parseDocument, ifm);
-  });
-
-  return { ifm } as { ifm: Ifm };
+  return { parser } as { parser: Parser };
 }
 
 export function deactivate() {

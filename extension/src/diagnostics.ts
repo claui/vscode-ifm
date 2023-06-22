@@ -7,18 +7,18 @@ import {
   TextDocument,
 } from "vscode";
 
-import { DocumentParsedEvent, Ifm } from "./cli-api";
 import { grammar, semantics } from "./error-grammar";
 import * as ifm from "./errors/ifm";
 import { toDiagnostic } from "./errors/mappers";
 import log from "./log";
+import { DocumentParsedEvent, Parser } from "./parser";
 
 export class Diagnostics {
   #diagnosticCollection: DiagnosticCollection =
     languages.createDiagnosticCollection("IFM");
 
-  constructor(ifmApi: Ifm) {
-    ifmApi.onDidParseDocument((event) => {
+  constructor(parser: Parser) {
+    parser.onDidParseDocument((event) => {
       try {
         this.refresh(event);
       } catch (error) {
@@ -30,6 +30,11 @@ export class Diagnostics {
           DiagnosticSeverity.Error,
         );
         diagnostic.source = "ifm";
+        log.error(error);
+        if ("cause" in error) {
+          log.error("Caused by:");
+          log.error(error.cause);
+        }
         this.#diagnosticCollection.set(event.document.uri, [diagnostic]);
       }
     });
@@ -38,7 +43,9 @@ export class Diagnostics {
   refresh(event: DocumentParsedEvent) {
     log.info("Refreshing diagnostics", event.document.uri.toString());
     if (!event.hasRun) {
-      throw new Error(event.reason);
+      throw new Error(event.reason, {
+        cause: ("cause" in event.error) ? event.error.cause : event.error,
+      });
     }
     const matchResult = grammar.match(event.stderr);
     if (matchResult.failed()) {

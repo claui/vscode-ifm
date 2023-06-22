@@ -5,7 +5,7 @@ import {
   LanguageStatusSeverity,
 } from "vscode";
 
-import { IfmCli, onDidCliChange } from "./cli-api";
+import { IfmCli } from "./cli";
 import log from "./log";
 import { getCurrentTimestamp } from "./time";
 
@@ -23,7 +23,6 @@ export class Status {
       command: "ifm.action.showLog",
       title: "Show extension log",
     };
-    onDidCliChange(this.refresh, this);
   }
 
   busy(reason: string) {
