@@ -1,11 +1,11 @@
 import {
   commands, ConfigurationScope, ExtensionContext, workspace,
+  WorkspaceConfiguration,
 } from "vscode";
 
 import { EventCurator } from "vscode-event-curator";
 
 import { CliProvider, ExecutableConfigProvider } from "./cli";
-import { CHANGE_EVENT_THROTTLE_MILLIS, MAX_RUNTIME_MILLIS } from "./constants";
 import { Diagnostics } from "./diagnostics";
 import log from "./log";
 import { Parser } from "./parser";
@@ -13,12 +13,19 @@ import { Status } from "./status";
 
 function createParser(): Parser {
   const executableConfigProvider: ExecutableConfigProvider =
-    (scope?: ConfigurationScope) => ({
-      executable: workspace
-        .getConfiguration("ifm", scope)
-        .get("executablePath") || "ifm",
-      maxRuntimeMillis: MAX_RUNTIME_MILLIS,
-    })
+    (scope?: ConfigurationScope) => {
+      const ifmConfig: WorkspaceConfiguration = workspace
+        .getConfiguration("ifm", scope);
+      const maxRuntimeMillis: number | undefined = ifmConfig
+        .get("runtimeLimitInMilliseconds");
+      if (!maxRuntimeMillis) {
+        throw new Error("Process runtime limit not configured");
+      }
+      return {
+        executable: ifmConfig.get("executablePath") || "ifm",
+        maxRuntimeMillis,
+      };
+    }
   const cliProvider = new CliProvider("ifm", executableConfigProvider);
   return new Parser(cliProvider);
 }
@@ -35,7 +42,8 @@ export function activate(context: ExtensionContext) {
 
   const curator = new EventCurator({
     language: "ifm",
-    changeEventThrottleMillis: CHANGE_EVENT_THROTTLE_MILLIS,
+    changeEventThrottleMillis: 2 * context.extension.packageJSON.contributes
+      .configuration.properties["ifm.runtimeLimitInMilliseconds"]["default"],
   });
 
   curator.onDidInitiallyFindRelevantTextDocument(parser.parseDocument, parser);
