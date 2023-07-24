@@ -61,7 +61,7 @@ export class Diagnostics {
     this.#diagnosticCollection.set(event.document.uri, diagnostics);
   }
 
-  delete(document: TextDocument) {
-    this.#diagnosticCollection["delete"](document.uri);
+  remove(document: TextDocument) {
+    this.#diagnosticCollection.delete(document.uri);
   }
 }

@@ -8,9 +8,9 @@ export interface LineMessage extends BaseMessage {
   readonly predicate: string;
 }
 
-export type Room = {
+export interface Room {
   readonly name: string;
-};
+}
 
 export interface RoomMessage extends BaseMessage {
   readonly kind: "room";

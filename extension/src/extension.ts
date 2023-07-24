@@ -22,7 +22,11 @@ function createParser(): Parser {
         throw new Error("Process runtime limit not configured");
       }
       return {
-        executable: ifmConfig.get("executablePath") || "ifm",
+        executable:
+          /* eslint-disable-next-line
+             @typescript-eslint/prefer-nullish-coalescing
+          -- falsy is what we want here because of the empty string */
+          ifmConfig.get("executablePath") || "ifm",
         maxRuntimeMillis,
       };
     }
@@ -43,17 +47,19 @@ export function activate(context: ExtensionContext) {
   const curator = new EventCurator({
     language: "ifm",
     changeEventThrottleMillis: 2 * context.extension.packageJSON.contributes
-      .configuration.properties["ifm.runtimeLimitInMilliseconds"]["default"],
+      .configuration.properties["ifm.runtimeLimitInMilliseconds"].default,
   });
 
   curator.onDidInitiallyFindRelevantTextDocument(parser.parseDocument, parser);
   curator.onDidChangeRelevantTextDocument(parser.parseDocument, parser);
   curator.onDidOpenRelevantTextDocument(parser.parseDocument, parser);
   curator.onDidCloseRelevantTextDocument((document) => {
-    diagnostics["delete"](document);
+    diagnostics.remove(document);
     log.debug("Diagnostics deleted");
   });
 
+  const version = context.extension.packageJSON.version as string;
+  log.info(`Extension v${version} startup successful`);
   return { parser } as { parser: Parser };
 }
 

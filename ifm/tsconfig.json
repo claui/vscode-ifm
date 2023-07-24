@@ -9,7 +9,7 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "noImplicitAny": true,
-    "outDir": "work/tsc-out",
+    "outDir": "lib",
     "resolveJsonModule": true,
     "skipLibCheck": false,
     "strictNullChecks": true,
