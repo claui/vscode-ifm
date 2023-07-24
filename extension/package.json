@@ -30,6 +30,12 @@
           "type": "string",
           "markdownDescription": "Path to the `ifm` executable, e. g. `/usr/local/bin/ifm`.  \nLeave blank if it’s already on your `PATH`.",
           "scope": "machine-overridable"
+        },
+        "ifm.runtimeLimitInMilliseconds": {
+          "type": "integer",
+          "markdownDescription": "Maximum number of milliseconds the `ifm` process is allowed to run.",
+          "default": 500,
+          "scope": "machine-overridable"
         }
       }
     },
