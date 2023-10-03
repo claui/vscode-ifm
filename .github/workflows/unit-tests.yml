@@ -7,12 +7,23 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Install yarn if not present
+        run: |-
+          if which yarn; then
+            exit
+          fi
+          curl -fsSL --create-dirs -o ~/bin/yarn \
+            https://github.com/yarnpkg/yarn/releases/download/v1.22.19/yarn-1.22.19.js
+          chmod +x ~/bin/yarn
+          echo ~/bin >> "${GITHUB_PATH}"
 
       - name: Use specified Node.js version
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version-file: .nvmrc
+          cache: yarn
 
       - name: Install dependencies
         run: yarn install
