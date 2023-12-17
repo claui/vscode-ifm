@@ -16,25 +16,33 @@ interface CliOk {
   ): { stdout: string; stderr: string; status: number | null; error?: Error };
 }
 
-type CliNotOk = {
-  namespace: CliNamespace,
-  reason: string,
-  error: Error,
-};
+interface CliNotOk {
+  namespace: CliNamespace;
+  reason: string;
+  error: Error;
+}
 
 export type IfmCli =
   | { ok: true } & CliOk
   | { ok: false } & CliNotOk
 
-export type CliOutput = { success: boolean; stdout: string; stderr: string };
+export interface CliOutput {
+  success: boolean;
+  stdout: string;
+  stderr: string;
+}
+
 export type CliResult =
   | { hasRun: true } & CliOutput
   | { hasRun: false, success: false } & CliNotOk
+//| { healthy: false, hasRun: false, success: false } & CliNotHealthy
 
 export type CliNamespace = string;
-export type ExecutableConfig = {
-  readonly executable: string,
+
+export interface ExecutableConfig {
+  readonly executable: string;
   readonly maxRuntimeMillis: string | number;
-};
+}
+
 export type ExecutableConfigProvider =
   (scope?: ConfigurationScope) => ExecutableConfig;

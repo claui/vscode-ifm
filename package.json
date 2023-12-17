@@ -4,44 +4,38 @@
   "engines": {
     "node": "^16.0.0"
   },
-  "dependencies": {
-    "ohm-js": "^17.0.4",
-    "vscode-event-curator": "^0.1.1"
+  "comments": {
+    "devDependencies": {
+      "@yarnpkg/sdks": "Replace the <=2.x || ^3.0.0 restriction with the latest stable version once a stable 3.x release is out."
+    },
+    "resolutions": {
+      "@vscode/vsce": "Private patch for Yarn v3 compatibility. Keep in sync with the version of the `@vscode/vsce` dependency."
+    }
   },
   "devDependencies": {
-    "@types/node": "^16.11.7",
-    "@types/vscode": "=1.75",
-    "@typescript-eslint/eslint-plugin": "^5.56.0",
-    "@typescript-eslint/parser": "^5.56.0",
-    "@vscode/vsce": "^2.18.0",
-    "@yarnpkg/sdks": "^2.7.0",
-    "del-cli": "^5.0.0",
-    "esbuild": "^0.17.12",
-    "eslint": "^8.36.0",
-    "ovsx": "^0.8.0",
-    "semver": "^7.5.2",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.2"
-  },
-  "scripts": {
-    "ci-package": "mkdir -p extension/dist && yarn run -B vsce package --no-dependencies --yarn --cwd extension --githubBranch main/extension --out extension/dist",
-    "clean": "yarn run -B del extension/build extension/dist extension/work",
-    "clean-install": "yarn install && git checkout -- .vscode/settings.json '.yarn/*/LICENSE'",
-    "compile": "tsc -p extension/ && yarn run esbuild --bundle --external:vscode --outdir=./extension/build/ --platform=node ./extension/work/tsc-out/extension.js",
-    "lint": "yarn run -B eslint --max-warnings 0 extension/src",
-    "login": "yarn run -B vsce login claui",
-    "package": "yarn clean && yarn compile && yarn ci-package",
-    "postinstall": "yarn sdks vscode",
-    "publish-vsce": "yarn run -B vsce publish --no-dependencies --yarn --cwd extension --githubBranch main/extension",
-    "repatch": "git add -- package.json && yarn patch-commit -s \"$1\" && git checkout -- package.json && yarn clean-install",
-    "upgrade-all": "printf >&2 '%s\\n\\t%s\\n' 'Run the following command line manually:' 'yarn set version stable && yarn install && yarn upgrade-packages' && false",
-    "upgrade-lockfile": "yarn up -R '**' && yarn clean-install",
-    "upgrade-packages": "yarn up '**' '@types/vscode@=1.75' && yarn up -R '**' && yarn clean-install",
-    "upgrade-yarn-itself": "printf >&2 '%s\\n\\t%s\\n' 'Run the following command line manually:' 'yarn set version stable && yarn install && yarn clean-install' && false",
-    "vscode:prepublish": "yarn clean && yarn compile"
+    "@types/jest": "^29.5.3",
+    "@yarnpkg/sdks": "<=2.x || ^3.0.0",
+    "typescript": "^5.1.6"
   },
   "resolutions": {
-    "@vscode/vsce@^2.18.0": "patch:@vscode/vsce@npm:2.18.0#./.yarn/patches/@vscode-vsce-npm-2.18.0-c171711221.patch"
+    "@vscode/vsce@^2.19.0": "patch:@vscode/vsce@npm:2.19.0#./.yarn/patches/@vscode-vsce-npm-2.19.0-c171711221.patch"
   },
-  "packageManager": "yarn@3.5.0"
+  "scripts": {
+    "clean": "yarn workspace extension clean && yarn workspace ifm clean",
+    "clean-install": "yarn install && git checkout -- .vscode/settings.json '.yarn/*/LICENSE'",
+    "compile": "yarn workspace ifm compile && yarn workspace extension compile",
+    "lint": "yarn workspace ifm lint && yarn workspace extension lint",
+    "package": "yarn workspace ifm compile && yarn workspace extension package",
+    "postinstall": "yarn sdks vscode",
+    "test": "yarn workspace ifm test",
+    "upgrade-all": "printf >&2 '%s\\n\\t%s\\n' 'Run the following command line manually:' 'yarn set version stable && yarn install && yarn upgrade-packages' && false",
+    "upgrade-lockfile": "yarn up -R '**' && yarn clean-install",
+    "upgrade-packages": "yarn up '**' '@types/node@<=16.x' '@types/vscode@=1.75' '@yarnpkg/sdks@<=2.x || ^3.0.0' && yarn up -R '**' && yarn clean-install",
+    "upgrade-yarn-itself": "printf >&2 '%s\\n\\t%s\\n' 'Run the following command line manually:' 'yarn set version stable && yarn install && yarn clean-install' && false"
+  },
+  "workspaces": [
+    "extension",
+    "ifm"
+  ],
+  "packageManager": "yarn@3.6.1"
 }

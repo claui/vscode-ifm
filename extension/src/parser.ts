@@ -17,6 +17,22 @@ export class Parser {
   }
 
   async parseDocument(document: TextDocument) {
+    /*
+     * Pseudo-code for interface segregation:
+     * const config: ExecutableConfig = await this.#configFor(document);
+     * try {
+     *   const cliResult: ifm.CliResult = ifm.runSync(document.getText(), config);
+     *   if (!cliResult.success) {
+     *     log.error("exit status:", cliResult.status);
+     *     log.error("error:", cliResult.error);
+     *   }
+     * } catch (error) {
+     *   // …
+     * }
+     * this.#didParseDocumentEventEmitter.fire(
+     *   { document, ...cliResult });
+     */
+
     const cli: IfmCli = await this.#cliProvider.cliFor(document);
     if (!cli.ok) {
       this.#didParseDocumentEventEmitter.fire(

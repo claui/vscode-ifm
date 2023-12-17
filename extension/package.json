@@ -1,75 +1,42 @@
 {
-  "name": "ifm",
-  "version": "1.2.3",
-  "publisher": "claui",
-  "engines": {
-    "vscode": "^1.75.0"
-  },
+  "name": "extension",
   "license": "SEE LICENSE IN README.md",
-  "displayName": "IFM – Interactive Fiction Mapping",
-  "description": "Support for the Interactive Fiction Mapping language",
-  "categories": [],
-  "keywords": [],
-  "preview": true,
-  "main": "build/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "ifm.action.refresh",
-        "title": "IFM: Refresh connection"
-      },
-      {
-        "command": "ifm.action.showLog",
-        "title": "IFM: Show extension log"
-      }
-    ],
-    "configuration": {
-      "title": "IFM – Interactive Fiction Mapping",
-      "properties": {
-        "ifm.executablePath": {
-          "type": "string",
-          "markdownDescription": "Path to the `ifm` executable, e. g. `/usr/local/bin/ifm`.  \nLeave blank if it’s already on your `PATH`.",
-          "scope": "machine-overridable"
-        },
-        "ifm.runtimeLimitInMilliseconds": {
-          "type": "integer",
-          "markdownDescription": "Maximum number of milliseconds the `ifm` process is allowed to run.",
-          "default": 500,
-          "scope": "machine-overridable"
-        }
-      }
-    },
-    "configurationDefaults": {
-      "[ifm]": {
-        "editor.autoIndent": "keep",
-        "editor.wrappingIndent": "indent",
-        "editor.tabSize": 2
-      }
-    },
-    "grammars": [
-      {
-        "language": "ifm",
-        "scopeName": "source.ifm",
-        "path": "share/ifm.tmLanguage.json"
-      }
-    ],
-    "languages": [
-      {
-        "id": "ifm",
-        "aliases": [
-          "IFM",
-          "IFM language"
-        ],
-        "filenamePatterns": [
-          "*.ifm"
-        ],
-        "configuration": "share/language-configuration.json"
-      }
-    ]
+  "comments": {
+    "devDependencies": {
+      "@types/node": "Keep this pinned to the Node.js major version that ships with VS Code.",
+      "@types/vscode": "For details, see section *Upgrading the VS Code API version* in `README.md`."
+    }
   },
-  "extensionKind": [
-    "workspace"
-  ],
-  "activationEvents": [],
-  "repository": "github:claui/vscode-ifm"
+  "dependencies": {
+    "ifm": "workspace:^",
+    "ohm-js": "^17.1.0",
+    "vscode-event-curator": "^0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "<=16.x",
+    "@types/vscode": "=1.75",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vscode/vsce": "^2.19.0",
+    "del-cli": "^5.0.0",
+    "esbuild": "^0.18.12",
+    "esbuild-copy-static-files": "^0.1.0",
+    "eslint": "^8.45.0",
+    "ovsx": "^0.8.2",
+    "semver": "^7.5.4",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "scripts": {
+    "ci-package": "mkdir -p dist && yarn run -B vsce package --no-dependencies --yarn --cwd build --githubBranch main/extension --out dist",
+    "clean": "yarn run -B del build dist types work",
+    "compile": "yarn run -B tsc && contrib/build.mjs",
+    "lint": "yarn run -B eslint --max-warnings 0 src",
+    "login": "yarn run -B vsce login claui",
+    "package": "yarn clean && yarn compile && yarn ci-package",
+    "publish-vsce": "yarn run -B vsce publish --no-dependencies --yarn --cwd build --githubBranch main/extension",
+    "repatch": "git add -- package.json && yarn patch-commit -s \"$1\" && git checkout -- package.json && yarn clean-install",
+    "vscode:prepublish": "yarn clean && yarn compile"
+  }
 }
