@@ -35,6 +35,7 @@ export interface CliOutput {
 export type CliResult =
   | { hasRun: true } & CliOutput
   | { hasRun: false, success: false } & CliNotOk
+//| { healthy: false, hasRun: false, success: false } & CliNotHealthy
 
 export type CliNamespace = string;
 

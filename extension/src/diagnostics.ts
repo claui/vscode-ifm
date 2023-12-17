@@ -47,6 +47,14 @@ export class Diagnostics {
         cause: ("cause" in event.error) ? event.error.cause : event.error,
       });
     }
+    /*
+     * Pseudo-code for interface segregation:
+     * const ifmMessages: ifm.Message[] = ifm.parseCliStderr(event.stderr);
+     * const diagnostics: Diagnostic[] = ifmMessages.map((message) =>
+     *   toDiagnostic(message, event.document),
+     * );
+     * this.#diagnosticCollection.set(event.document.uri, diagnostics);
+     */
     const matchResult = grammar.match(event.stderr);
     if (matchResult.failed()) {
       throw new Error(matchResult.message);
